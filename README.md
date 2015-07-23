@@ -3,6 +3,7 @@ dreamhorn
 
 A rapid development framework for interactive texts.
 
+[![Build Status](https://travis-ci.org/dreamhorn/dreamhorn.svg?branch=master)](https://travis-ci.org/dreamhorn/dreamhorn)
 
 - [Installing](#installing)
 - [Getting Started](#getting-started)
