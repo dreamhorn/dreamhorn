@@ -2,7 +2,7 @@ var chai = require('chai');
 var sinon = require('sinon');
 var md5 = require('md5');
 require('blanket');
-var Dreamhorn = require("./lib/dreamhorn");
+var Dreamhorn = require("dreamhorn");
 
 var expect = chai.expect;
 chai.should();

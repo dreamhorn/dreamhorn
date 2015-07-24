@@ -1,21 +1,21 @@
 BIN = ./node_modules/.bin
 SRC = $(wildcard src/*.coffee)
-LIB = $(SRC:src/%.coffee=lib/%.js)
+LIB = $(SRC:src/%.coffee=./%.js)
 
 build: $(LIB)
 
-lib/%.js: src/%.coffee
+%.js: src/%.coffee
 	mkdir -p $(@D)
 	$(BIN)/coffee --compile --print --map $< > $@
 
 test: build
-	$(BIN)/mocha
+	$(BIN)/mocha tests
 	make coverage
 
-coverage.html: build
-	$(BIN)/mocha --require blanket -R html-cov > coverage.html
+tests/coverage.html: build
+	$(BIN)/mocha --require blanket -R html-cov tests > tests/coverage.html
 
-coverage: coverage.html
+coverage: tests/coverage.html
 
 clean:
 	rm -f $(LIB)
