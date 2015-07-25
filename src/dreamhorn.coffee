@@ -1,77 +1,15 @@
 "use strict"
 _ = require('lodash')
-smokesignals = require('smokesignals')
-md5 = require('md5')
-Dict = require("collections/dict")
+Dict = require('collections/dict')
+Stack = require('./stack')
+Situation = require('./situation')
+Events = require('./events')
 
 
-class Stack
-  constructor: () ->
-    smokesignals.convert this
-    @clear()
-
-  clear: (data) ->
-    @_data = [null]
-    @length = 0
-    @emit 'cleared', data
-
-  push: (item, data) ->
-    @length += 1
-    @_data[@length] = item
-    @emit 'pushed', item, data
-    return this
-
-  peek: () ->
-    return @_data[@length]
-
-  pop: (data) ->
-    if @length > 0
-      @length -= 1
-      popped = this._data.pop()
-      @emit 'popped', popped, data
-      return popped
-    else
-      return undefined
-
-  drop: (item, data) ->
-    dropped = _.remove(@_data, _.matchesProperty('id', item.id))[0]
-    @length = @_data.length - 1
-    @emit 'dropped', dropped, data
-    return dropped
-
-
-class Dispatcher
-  constructor: () ->
-    smokesignals.convert(this)
-
-
-class Situation
-  constructor: (id, data) ->
-    if _.isUndefined data
-      data = id
-      id = undefined
-
-    if _.isString data
-      data = {content: data, id: id}
-
-    if not data.id
-      if not id
-        data.id = md5(JSON.stringify(data))
-      else
-        data.id = id
-
-    data.id = data.id.toLowerCase()
-
-    _.assign this, data
-    @index = null
-
-
-class Dreamhorn
+class Dreamhorn extends Events
   constructor: (options) ->
-    smokesignals.convert(this)
     options = options || {}
     @options = _.defaultsDeep options, Dreamhorn.defaults
-    @dispatcher = new Dispatcher()
     @stack = new Stack()
     @situations_by_id = new Dict()
     @situations_in_order = []
@@ -98,7 +36,7 @@ class Dreamhorn
     situation.index = @situations_in_order.length
     @situations_by_id.set situation.id.toLowerCase(), situation
     @situations_in_order.push situation
-    @emit "situation:add", situation
+    @trigger "situation:add", situation
     return situation
 
   get_situation: (situation_id) ->
@@ -111,7 +49,7 @@ class Dreamhorn
       situation = @situations_by_id.get situation_id.toLowerCase()
     if not situation
       data = {}
-      @emit 'situation:missing', data
+      @trigger 'situation:missing', data
       if _.isEmpty data
         throw new Error "No such situation #{situation_id}"
       else
@@ -122,7 +60,7 @@ class Dreamhorn
   mark_seen: (situation) ->
     seen = @seen.get situation.id
     @seen.set situation.id, if not seen then 1 else seen + 1
-    @emit "seen", situation
+    @trigger "seen", situation
 
   push: (data) =>
     if _.isString data
@@ -147,7 +85,7 @@ class Dreamhorn
   replace: (data) =>
     popped = @pop data
     situation = @push data
-    @stack.emit 'replaced', popped, situation, data
+    @stack.trigger 'replaced', popped, situation, data
     return [popped, situation]
 
 
@@ -155,9 +93,5 @@ class Dreamhorn
 Dreamhorn.defaults =
   # The name of the situation to begin with:
   begin_situation: 'begin'
-
-Dreamhorn.Dispatcher = Dispatcher
-Dreamhorn.Stack = Stack
-Dreamhorn.Situation = Situation
 
 module.exports = Dreamhorn

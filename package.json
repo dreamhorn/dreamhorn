@@ -32,12 +32,13 @@
   "dependencies": {
     "collections": "^1.2.3",
     "lodash": "3.x",
-    "md5": "^2.0.0",
-    "smokesignals": "0.0.7"
+    "md5": "^2.0.0"
   },
   "config": {
     "blanket": {
-      "pattern": "lib",
+      "pattern": [
+        ""
+      ],
       "data-cover-never": [
         "node_modules",
         "tests"
