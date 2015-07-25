@@ -2,7 +2,7 @@ var chai = require('chai');
 var sinon = require('sinon');
 var md5 = require('md5');
 require('blanket');
-var Situation = require("dreamhorn/situation");
+var Situation = require("../situation");
 
 var expect = chai.expect;
 chai.should();
