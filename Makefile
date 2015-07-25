@@ -8,9 +8,10 @@ build: $(LIB)
 	mkdir -p $(@D)
 	$(BIN)/coffee --compile --print --map $< > $@
 
-test: install
+test: install runtests coverage
+
+runtests:
 	$(BIN)/mocha tests
-	make coverage
 
 tests/coverage.html: install
 	$(BIN)/mocha --require blanket -R html-cov tests > tests/coverage.html
