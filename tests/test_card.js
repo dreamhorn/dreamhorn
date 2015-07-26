@@ -2,14 +2,14 @@ var chai = require('chai');
 var sinon = require('sinon');
 var md5 = require('md5');
 require('blanket');
-var Situation = require("../situation");
+var Card = require("../card");
 
 var expect = chai.expect;
 chai.should();
 
 
-describe('Situation', function () {
-  var situation;
+describe('Card', function () {
+  var card;
   var id;
   var data;
 
@@ -20,38 +20,38 @@ describe('Situation', function () {
 
   describe('#constructor(id, data)', function () {
     it('should set up with an id and data', function () {
-      situation = new Situation(id, data);
-      situation.id.should.equal(id);
-      situation.content.should.equal(data.content);
+      card = new Card(id, data);
+      card.id.should.equal(id);
+      card.content.should.equal(data.content);
     });
 
     it('should set up with only data, with an id', function () {
       data.id = id;
-      situation = new Situation(data);
-      situation.id.should.equal(id);
-      situation.content.should.equal(data.content);
+      card = new Card(data);
+      card.id.should.equal(id);
+      card.content.should.equal(data.content);
     });
 
     it('should set up with only data, with no id', function () {
       id = md5(JSON.stringify(data));
-      situation = new Situation(data);
-      situation.id.should.equal(id);
-      situation.content.should.equal(data.content);
+      card = new Card(data);
+      card.id.should.equal(id);
+      card.content.should.equal(data.content);
     });
 
     it('should set up with an id and a content string', function () {
       content = data.content;
-      situation = new Situation(id, content);
-      situation.id.should.equal(id);
-      situation.content.should.equal(data.content);
+      card = new Card(id, content);
+      card.id.should.equal(id);
+      card.content.should.equal(data.content);
     });
 
     it('should set up with only a content string, with no id', function () {
       content = data.content;
       id = md5(JSON.stringify(data));
-      situation = new Situation(content);
-      situation.id.should.equal(id);
-      situation.content.should.equal(data.content);
+      card = new Card(content);
+      card.id.should.equal(id);
+      card.content.should.equal(data.content);
     });
   });
 });

@@ -3,7 +3,7 @@ _ = require('lodash')
 md5 = require('md5')
 
 
-class Situation
+class Card
   constructor: (id, data) ->
     if _.isUndefined data
       data = id
@@ -24,4 +24,4 @@ class Situation
     @index = null
 
 
-module.exports = Situation
+module.exports = Card
