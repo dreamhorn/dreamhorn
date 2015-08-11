@@ -2,11 +2,11 @@ BIN = ./node_modules/.bin
 SRC = $(wildcard src/*.coffee)
 LIB = $(SRC:src/%.coffee=./%.js)
 
-build: $(LIB)
+default:
+	doit
 
-%.js: src/%.coffee
-	mkdir -p $(@D)
-	$(BIN)/coffee --compile --print --map $< > $@
+watch:
+	fswatch --one-per-batch -0 src/ | xargs -0 -n 1 -I {} doit
 
 test: install runtests coverage
 

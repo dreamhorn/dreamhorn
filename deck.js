@@ -4,7 +4,8 @@
   var Card, Deck, Dict, Events, Stack, _,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   _ = require('lodash');
 
@@ -26,24 +27,25 @@
       this.pop = bind(this.pop, this);
       this.push = bind(this.push, this);
       options = options || {};
-      this.options = _.defaultsDeep(options, Deck.defaults);
+      this.options = _.defaultsDeep({}, options, Deck.defaults);
+      this.name = this.options.name;
       this.base = this.options.base;
       this.stack = new Stack();
       this.cards_by_id = new Dict();
       this.cards_in_order = [];
       this.seen = new Dict();
-      this.on("begin", (function(_this) {
+      this.on('replace', this.replace);
+      this.on('push', this.push);
+      this.on('pop', this.pop);
+      this.on('drop', this.drop);
+      this.on('clear', this.clear);
+      this.on('all', (function(_this) {
         return function() {
-          return _this.push({
-            target: _this.options.begin_card || 'begin'
-          });
+          var args, event;
+          event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+          return console.debug.apply(console, ["*" + event + "* event on " + _this.options.name + ":"].concat(slice.call(args)));
         };
       })(this));
-      this.on("replace", this.replace);
-      this.on("push", this.push);
-      this.on("pop", this.pop);
-      this.on("drop", this.drop);
-      this.on("clear", this.clear);
     }
 
     Deck.prototype.card = function(id, data) {
@@ -54,7 +56,7 @@
       card.index = this.cards_in_order.length;
       this.cards_by_id.set(card.id.toLowerCase(), card);
       this.cards_in_order.push(card);
-      this.trigger("card:add", card);
+      this.trigger('card:add', card);
       return card;
     };
 
@@ -83,7 +85,7 @@
       var seen;
       seen = this.seen.get(card.id);
       this.seen.set(card.id, !seen ? 1 : seen + 1);
-      return this.trigger("seen", card);
+      return this.trigger('seen', card);
     };
 
     Deck.prototype.push = function(data) {
@@ -126,6 +128,29 @@
       return this;
     };
 
+    Deck.prototype.broadcast = function() {
+      var args, deck, event, i, len, ref, ref1, results;
+      event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+      (ref = this.base).trigger.apply(ref, [event].concat(slice.call(args)));
+      ref1 = this.base.decks.all();
+      results = [];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        deck = ref1[i];
+        if (deck === !this) {
+          results.push(deck.trigger.apply(deck, [event].concat(slice.call(args))));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    };
+
+    Deck.prototype.send_to_deck = function() {
+      var args, deck_id, event, ref;
+      deck_id = arguments[0], event = arguments[1], args = 3 <= arguments.length ? slice.call(arguments, 2) : [];
+      return (ref = this.base.decks.get(deck_id)).trigger.apply(ref, [event].concat(slice.call(args)));
+    };
+
     return Deck;
 
   })(Events);
@@ -139,9 +164,11 @@
   };
 
   Deck.extend_defaults = function(extensions) {
-    return Deck.prototype.defaults = _.defaultsDeep(extensions, Deck.prototype.defaults);
+    return Deck.defaults = _.defaultsDeep({}, extensions, Deck.defaults);
   };
 
   module.exports = Deck;
 
 }).call(this);
+
+//# sourceMappingURL=deck.js.map

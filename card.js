@@ -38,3 +38,5 @@
   module.exports = Card;
 
 }).call(this);
+
+//# sourceMappingURL=card.js.map

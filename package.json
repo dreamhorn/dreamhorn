@@ -30,9 +30,14 @@
     "sinon": "^1.15.4"
   },
   "dependencies": {
+    "bean": "^1.0.15",
+    "bonzo": "^2.0.0",
     "collections": "^1.2.3",
+    "handlebars": "^3.0.3",
     "lodash": "3.x",
-    "md5": "^2.0.0"
+    "md5": "^2.0.0",
+    "qwery": "^4.0.0",
+    "when": "^3.7.3"
   },
   "config": {
     "blanket": {

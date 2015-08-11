@@ -9,7 +9,8 @@ Events = require('./events')
 class Deck extends Events
   constructor: (options) ->
     options = options || {}
-    @options = _.defaultsDeep options, Deck.defaults
+    @options = _.defaultsDeep {}, options, Deck.defaults
+    @name = @options.name
     @base = @options.base
 
     @stack = new Stack()
@@ -18,18 +19,18 @@ class Deck extends Events
 
     @seen = new Dict()
 
-    @on "begin", () =>
-      @push {target: @options.begin_card || 'begin'}
+    @on 'replace', @replace
 
-    @on "replace", @replace
+    @on 'push', @push
 
-    @on "push", @push
+    @on 'pop', @pop
 
-    @on "pop", @pop
+    @on 'drop', @drop
 
-    @on "drop", @drop
+    @on 'clear', @clear
 
-    @on "clear", @clear
+    @on 'all', (event, args...) =>
+      console.debug "*#{event}* event on #{@options.name}:", args...
 
   card: (id, data) ->
     return @add_card new Card(id, data)
@@ -38,7 +39,7 @@ class Deck extends Events
     card.index = @cards_in_order.length
     @cards_by_id.set card.id.toLowerCase(), card
     @cards_in_order.push card
-    @trigger "card:add", card
+    @trigger 'card:add', card
     return card
 
   get_card: (card_id) ->
@@ -62,7 +63,7 @@ class Deck extends Events
   mark_seen: (card) ->
     seen = @seen.get card.id
     @seen.set card.id, if not seen then 1 else seen + 1
-    @trigger "seen", card
+    @trigger 'seen', card
 
   push: (data) =>
     if _.isString data
@@ -94,6 +95,15 @@ class Deck extends Events
     _.extend(this, extensions)
     return this
 
+  broadcast: (event, args...) ->
+    @base.trigger(event, args...)
+    for deck in @base.decks.all()
+      if deck is not this
+        deck.trigger(event, args...)
+
+  send_to_deck: (deck_id, event, args...) ->
+    @base.decks.get(deck_id).trigger(event, args...)
+
 
 Deck.defaults =
   # The name of the card to begin with:
@@ -105,7 +115,7 @@ Deck.extend = (extensions) ->
 
 
 Deck.extend_defaults = (extensions) ->
-  Deck.prototype.defaults = _.defaultsDeep(extensions, Deck.prototype.defaults)
+  Deck.defaults = _.defaultsDeep({}, extensions, Deck.defaults)
 
 
 module.exports = Deck

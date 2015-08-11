@@ -1,5 +1,6 @@
 "use strict"
 _ = require('lodash')
+When = require('when')
 
 slice = Array.prototype.slice
 
@@ -62,17 +63,20 @@ class Events
   # receive the true name of the event as the first argument).
   trigger: (name) ->
     if not this._events
-       return this
+       return
     args = slice.call(arguments, 1)
     if not eventsApi(this, 'trigger', name, args)
       return this
     events = this._events[name]
     allEvents = this._events.all
+    results = []
     if events
-      triggerEvents(events, args)
+      results.push triggerEvents(events, args)
     if allEvents
-      triggerEvents(allEvents, arguments)
-    return this
+      results.push triggerEvents(allEvents, arguments)
+    return When.all(results)
+      .catch (args...) ->
+        console.error "Error in event #{name}:", args...
 
   # Tell this object to stop listening to either specific events ... or
   # to every object it's currently listening to.
@@ -132,20 +136,15 @@ triggerEvents = (events, args) ->
 
   switch args.length
     when 0
-      for ev in events
-        ev.callback.call(ev.ctx)
+      return When.all(for ev in events then ev.callback.call(ev.ctx))
     when 1
-      for ev in events
-        ev.callback.call(ev.ctx, a1)
+      return When.all(for ev in events then ev.callback.call(ev.ctx, a1))
     when 2
-      for ev in events
-        ev.callback.call(ev.ctx, a1, a2)
+      return When.all(for ev in events then ev.callback.call(ev.ctx, a1, a2))
     when 3
-      for ev in events
-        ev.callback.call(ev.ctx, a1, a2, a3)
+      return When.all(for ev in events then ev.callback.call(ev.ctx, a1, a2, a3))
     else
-      for ev in events
-        ev.callback.apply(ev.ctx, args)
+      return When.all(for ev in events then ev.callback.apply(ev.ctx, args))
 
 
 listenMethods =
@@ -165,5 +164,6 @@ _.each listenMethods, (implementation, method) ->
     obj[implementation](name, callback, this)
     return this
 
+Events.eventSplitter = eventSplitter
 
 module.exports = Events
