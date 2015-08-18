@@ -5,11 +5,11 @@ class Decks
   constructor: (@base, @options) ->
     @_decks = {}
 
-  define: (id, options={}) ->
+  define: (name, options={}) ->
     options = _.defaultsDeep({}, options, @options)
-    options.id = id
+    options.name = name
     options.base = @base
-    @_decks[id] = deck = new @options.deck_type(options)
+    @_decks[name] = deck = new @options.deck_type(options)
     @base.trigger 'deck:new', deck, options
     return deck
 

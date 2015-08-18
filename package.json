@@ -35,6 +35,7 @@
     "collections": "^1.2.3",
     "handlebars": "^3.0.3",
     "lodash": "3.x",
+    "marked": "^0.3.5",
     "md5": "^2.0.0",
     "qwery": "^4.0.0",
     "when": "^3.7.3"

@@ -64,24 +64,24 @@ class CardStackViewModule extends ViewModule
     if reactivate
       @reactivate_latest()
 
-  ensure_card_view: (card, options) ->
+  will_ensure_card_view: (card, options) ->
     try
       return When @get_subview card.id
     catch error
       options = _.defaultsDeep {card: card}, options
-      @use_subview(
+      @will_use_subview(
         id: card.id
         type: CardView
         options: options
       )
 
   start_card_view: (card, options) ->
-    @ensure_card_view(card, options).then (view) =>
-      @start_subview card.id
+    @will_ensure_card_view(card, options).then (view) =>
+      @will_start_subview card.id
 
   stop_card_view: (card) ->
     @ensure_card_view(card).then (view) =>
-      @stop_subview card.id
+      @will_stop_subview card.id
 
   # # This will unlink any active links in all visible situation views, except
   # # for the one at the top of the stack.

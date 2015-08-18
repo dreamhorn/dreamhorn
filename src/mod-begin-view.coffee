@@ -9,13 +9,14 @@ ViewModule = require('./mod-view')
 class BeginViewModule extends ViewModule
   defaults:
     begin_text: 'Begin!'
-    template: '<p id="begin-button"><a class="begin" href="#">{{ begin_text }}</a></p>'
+    template: '<a class="button button--primary begin-box__btn" id="begin-btn" href="#">{{ begin_text }}</a>'
 
   events:
-    "click a.begin": "on_begin"
+    "click a#begin-btn": "on_begin"
 
   setup: () ->
-    dom.wrap(@el).append(@render())
+    @will_render().then (html) =>
+      dom.wrap(@el).append(html)
 
   teardown: () ->
     dom.wrap(@el).empty()

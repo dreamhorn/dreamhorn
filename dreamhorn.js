@@ -51,7 +51,7 @@
       return this;
     };
 
-    Dreamhorn.prototype.use_module = function(arg) {
+    Dreamhorn.prototype.will_use_module = function(arg) {
       var deck, deck_id, mod, module_id, module_type, options;
       module_id = arg.id, module_type = arg.type, deck_id = arg.deck, options = arg.options;
       deck = this.decks.get(deck_id || this.options.main_deck);
@@ -80,55 +80,59 @@
       return mod;
     };
 
-    Dreamhorn.prototype.start_module = function(module_id) {
-      var mod;
+    Dreamhorn.prototype.will_start_module = function(module_id) {
+      var mod, promises;
+      promises = [];
       mod = this.get_module(module_id);
       if (!mod.active) {
-        this.trigger('module:starting', mod);
+        promises.push(this.trigger('module:starting', mod));
         if (_.isFunction(mod.instance.start)) {
-          mod.instance.start();
+          promises.push(mod.instance.start());
         }
         mod.active = true;
-        return this.trigger('module:started', mod).then((function(_this) {
+        promises.push(this.trigger('module:started', mod).then((function(_this) {
           return function() {
             return mod.instance;
           };
-        })(this));
+        })(this)));
       } else {
-        return When(mod.instance);
+        promises.push(When(mod.instance));
       }
+      return When.all(promises);
     };
 
-    Dreamhorn.prototype.stop_module = function(module_id) {
-      var mod;
+    Dreamhorn.prototype.will_stop_module = function(module_id) {
+      var mod, promises;
+      promises = [];
       mod = this.get_module(module_id);
       if (mod.active) {
-        this.trigger('module:stopping', mod);
+        promises.push(this.trigger('module:stopping', mod));
         if (_.isFunction(mod.instance.stop)) {
-          mod.instance.stop();
+          promises.push(mod.instance.stop());
         }
         mod.active = false;
-        return this.trigger('module:stopped', mod).then((function(_this) {
+        promises.push(this.trigger('module:stopped', mod).then((function(_this) {
           return function() {
             return mod.instance;
           };
-        })(this));
+        })(this)));
       } else {
-        return When(mod.instance);
+        promises.push(When(mod.instance));
+      }
+      return When.all(promises);
+    };
+
+    Dreamhorn.prototype.will_start_all_modules = function() {
+      var module_id;
+      for (module_id in this.modules) {
+        return When.all(this.start_module(module_id));
       }
     };
 
-    Dreamhorn.prototype.start_all_modules = function() {
+    Dreamhorn.prototype.will_stop_all_modules = function() {
       var module_id;
       for (module_id in this.modules) {
-        return this.start_module(module_id);
-      }
-    };
-
-    Dreamhorn.prototype.stop_all_modules = function() {
-      var module_id;
-      for (module_id in this.modules) {
-        return this.stop_module(module_id);
+        return When.all(this.stop_module(module_id));
       }
     };
 

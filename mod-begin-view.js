@@ -24,15 +24,19 @@
 
     BeginViewModule.prototype.defaults = {
       begin_text: 'Begin!',
-      template: '<p id="begin-button"><a class="begin" href="#">{{ begin_text }}</a></p>'
+      template: '<a class="button button--primary begin-box__btn" id="begin-btn" href="#">{{ begin_text }}</a>'
     };
 
     BeginViewModule.prototype.events = {
-      "click a.begin": "on_begin"
+      "click a#begin-btn": "on_begin"
     };
 
     BeginViewModule.prototype.setup = function() {
-      return dom.wrap(this.el).append(this.render());
+      return this.will_render().then((function(_this) {
+        return function(html) {
+          return dom.wrap(_this.el).append(html);
+        };
+      })(this));
     };
 
     BeginViewModule.prototype.teardown = function() {

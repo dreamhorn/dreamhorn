@@ -94,7 +94,7 @@
       }
     };
 
-    CardStackViewModule.prototype.ensure_card_view = function(card, options) {
+    CardStackViewModule.prototype.will_ensure_card_view = function(card, options) {
       var error;
       try {
         return When(this.get_subview(card.id));
@@ -103,7 +103,7 @@
         options = _.defaultsDeep({
           card: card
         }, options);
-        return this.use_subview({
+        return this.will_use_subview({
           id: card.id,
           type: CardView,
           options: options
@@ -112,9 +112,9 @@
     };
 
     CardStackViewModule.prototype.start_card_view = function(card, options) {
-      return this.ensure_card_view(card, options).then((function(_this) {
+      return this.will_ensure_card_view(card, options).then((function(_this) {
         return function(view) {
-          return _this.start_subview(card.id);
+          return _this.will_start_subview(card.id);
         };
       })(this));
     };
@@ -122,7 +122,7 @@
     CardStackViewModule.prototype.stop_card_view = function(card) {
       return this.ensure_card_view(card).then((function(_this) {
         return function(view) {
-          return _this.stop_subview(card.id);
+          return _this.will_stop_subview(card.id);
         };
       })(this));
     };

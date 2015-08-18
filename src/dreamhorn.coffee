@@ -33,7 +33,7 @@ class Dreamhorn extends Events
     _.extend(this, extensions)
     return this
 
-  use_module: ({id: module_id, type: module_type, deck: deck_id, options: options}) ->
+  will_use_module: ({id: module_id, type: module_type, deck: deck_id, options: options}) ->
     deck = @decks.get deck_id || @options.main_deck
     options = _.defaultsDeep {}, options, @options
     mod = @modules[module_id] =
@@ -52,35 +52,39 @@ class Dreamhorn extends Events
       throw new Error("No such module instance with id #{module_id}!")
     return mod
 
-  start_module: (module_id) ->
+  will_start_module: (module_id) ->
+    promises = []
     mod = @get_module module_id
     if not mod.active
-      @trigger 'module:starting', mod
+      promises.push @trigger 'module:starting', mod
       if _.isFunction mod.instance.start
-        mod.instance.start()
+        promises.push mod.instance.start()
       mod.active = true
-      return @trigger('module:started', mod).then () =>
+      promises.push @trigger('module:started', mod).then () =>
         return mod.instance
     else
-      return When mod.instance
+      promises.push When mod.instance
+    return When.all promises
 
-  stop_module: (module_id) ->
+  will_stop_module: (module_id) ->
+    promises = []
     mod = @get_module module_id
     if mod.active
-      @trigger 'module:stopping', mod
+      promises.push @trigger 'module:stopping', mod
       if _.isFunction mod.instance.stop
-        mod.instance.stop()
+        promises.push mod.instance.stop()
       mod.active = false
-      return @trigger('module:stopped', mod).then () =>
+      promises.push @trigger('module:stopped', mod).then () =>
         return mod.instance
     else
-      return When mod.instance
+      promises.push When mod.instance
+    return When.all promises
 
-  start_all_modules: () ->
-    return @start_module(module_id) for module_id of @modules
+  will_start_all_modules: () ->
+    return When.all @start_module(module_id) for module_id of @modules
 
-  stop_all_modules: () ->
-    return @stop_module(module_id) for module_id of @modules
+  will_stop_all_modules: () ->
+    return When.all @stop_module(module_id) for module_id of @modules
 
   with_deck: (deck_id='main', callback) ->
     callback @decks.get(deck_id)

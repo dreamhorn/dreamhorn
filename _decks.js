@@ -13,15 +13,15 @@
       this._decks = {};
     }
 
-    Decks.prototype.define = function(id, options) {
+    Decks.prototype.define = function(name, options) {
       var deck;
       if (options == null) {
         options = {};
       }
       options = _.defaultsDeep({}, options, this.options);
-      options.id = id;
+      options.name = name;
       options.base = this.base;
-      this._decks[id] = deck = new this.options.deck_type(options);
+      this._decks[name] = deck = new this.options.deck_type(options);
       this.base.trigger('deck:new', deck, options);
       return deck;
     };
