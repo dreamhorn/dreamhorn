@@ -68,10 +68,11 @@
     };
 
     CardStackViewModule.prototype.push = function(card, data) {
-      return this.deck.trigger('card:deactivate-all').then((function(_this) {
+      return this.deck.will_trigger('card:deactivate-all').then((function(_this) {
         return function() {
-          return _this.start_card_view(card).then(function(card_view) {
-            return dom.wrap(_this.el).append(card_view.el);
+          return _this.will_start_card_view(card).then(function(card_view) {
+            dom.wrap(_this.el).append(card_view.el);
+            return card_view.will_animate_in();
           });
         };
       })(this));
@@ -111,7 +112,7 @@
       }
     };
 
-    CardStackViewModule.prototype.start_card_view = function(card, options) {
+    CardStackViewModule.prototype.will_start_card_view = function(card, options) {
       return this.will_ensure_card_view(card, options).then((function(_this) {
         return function(view) {
           return _this.will_start_subview(card.id);
@@ -119,7 +120,7 @@
       })(this));
     };
 
-    CardStackViewModule.prototype.stop_card_view = function(card) {
+    CardStackViewModule.prototype.will_stop_card_view = function(card) {
       return this.ensure_card_view(card).then((function(_this) {
         return function(view) {
           return _this.will_stop_subview(card.id);

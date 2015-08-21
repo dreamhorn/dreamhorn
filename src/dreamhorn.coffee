@@ -27,7 +27,7 @@ class Dreamhorn extends Events
 
     @on 'all', (event, args...) =>
       console.debug "*#{event}* event on Dreamhorn core:", args...
-      @decks.trigger(event, args...)
+      @decks.will_trigger(event, args...)
 
   extend: (extensions) ->
     _.extend(this, extensions)
@@ -43,7 +43,7 @@ class Dreamhorn extends Events
       deck: deck_id
       options: options
       active: false
-    return @trigger('module:used', mod).then () =>
+    return @will_trigger('module:used', mod).then () =>
       return mod.instance
 
   get_module: (module_id) ->
@@ -56,11 +56,11 @@ class Dreamhorn extends Events
     promises = []
     mod = @get_module module_id
     if not mod.active
-      promises.push @trigger 'module:starting', mod
+      promises.push @will_trigger 'module:starting', mod
       if _.isFunction mod.instance.start
         promises.push mod.instance.start()
       mod.active = true
-      promises.push @trigger('module:started', mod).then () =>
+      promises.push @will_trigger('module:started', mod).then () =>
         return mod.instance
     else
       promises.push When mod.instance
@@ -70,11 +70,11 @@ class Dreamhorn extends Events
     promises = []
     mod = @get_module module_id
     if mod.active
-      promises.push @trigger 'module:stopping', mod
+      promises.push @will_trigger 'module:stopping', mod
       if _.isFunction mod.instance.stop
         promises.push mod.instance.stop()
       mod.active = false
-      promises.push @trigger('module:stopped', mod).then () =>
+      promises.push @will_trigger('module:stopped', mod).then () =>
         return mod.instance
     else
       promises.push When mod.instance

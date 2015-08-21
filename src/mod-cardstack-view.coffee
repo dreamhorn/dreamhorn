@@ -46,9 +46,10 @@ class CardStackViewModule extends ViewModule
 
   # Visually push a new situation onto the stack.
   push: (card, data) =>
-    @deck.trigger('card:deactivate-all').then () =>
-      @start_card_view(card).then (card_view) =>
+    @deck.will_trigger('card:deactivate-all').then () =>
+      @will_start_card_view(card).then (card_view) =>
         dom.wrap(@el).append card_view.el
+        card_view.will_animate_in()
 
   # Visually pop the top situation off the stack.
   pop: (card, data) =>
@@ -75,11 +76,11 @@ class CardStackViewModule extends ViewModule
         options: options
       )
 
-  start_card_view: (card, options) ->
+  will_start_card_view: (card, options) ->
     @will_ensure_card_view(card, options).then (view) =>
       @will_start_subview card.id
 
-  stop_card_view: (card) ->
+  will_stop_card_view: (card) ->
     @ensure_card_view(card).then (view) =>
       @will_stop_subview card.id
 
@@ -126,7 +127,7 @@ class CardStackViewModule extends ViewModule
   #   before = card.get('before_enter')
   #   if _.isFunction before
   #     before situation.options
-  #   @dispatcher.trigger 'before-enter', situation
+  #   @dispatcher.will_trigger 'before-enter', situation
 
   # # Run any after-enter handlers on the situation.
   # run_after_entering: (situation) ->
@@ -134,7 +135,7 @@ class CardStackViewModule extends ViewModule
   #   after = card.get('after_enter')
   #   if _.isFunction after
   #     after situation.options
-  #   @dispatcher.trigger 'after-enter', situation
+  #   @dispatcher.will_trigger 'after-enter', situation
 
   # # Run any before-exit handlers on the situation.
   # run_before_exiting: (situation) ->
@@ -142,7 +143,7 @@ class CardStackViewModule extends ViewModule
   #   before = card.get('before_exit')
   #   if _.isFunction before
   #     before situation.options
-  #   @dispatcher.trigger 'after-exit', situation
+  #   @dispatcher.will_trigger 'after-exit', situation
 
   # # Run any after-exit handlers on the situation.
   # run_after_exiting: (situation) ->
@@ -150,7 +151,7 @@ class CardStackViewModule extends ViewModule
   #   after = card.get('after_exit')
   #   if _.isFunction after
   #     after situation.options
-  #   @dispatcher.trigger 'after-exit', situation
+  #   @dispatcher.will_trigger 'after-exit', situation
 
   # # Deactivate all displayed situations.
   # deactivate_all: ->
@@ -160,11 +161,11 @@ class CardStackViewModule extends ViewModule
 
   # # Deactivate the given situation view.
   # deactivate_situation: (situation) ->
-  #   @dispatcher.trigger 'deactivate:situation', situation
+  #   @dispatcher.will_trigger 'deactivate:situation', situation
 
   # # Activate the given situation view.
   # activate_situation: (situation) ->
-  #   @dispatcher.trigger 'activate:situation', situation
+  #   @dispatcher.will_trigger 'activate:situation', situation
 
   # # Activate the situation view at the top of the stack.
   # reactivate_latest: ->
@@ -172,21 +173,21 @@ class CardStackViewModule extends ViewModule
   #   situation = @get_situation_from_card card
   #   @activate_situation(situation)
 
-  # # Trigger the visual addition of a situation view that has been hidden or newly added.
+  # # will_trigger the visual addition of a situation view that has been hidden or newly added.
   # show_situation: (situation) ->
   #   duration = config.base_animation_duration
-  #   trigger = @dispatcher.blackboard.get('last-trigger')
-  #   @dispatcher.trigger "show:situation", situation.$el, trigger
+  #   will_trigger = @dispatcher.blackboard.get('last-will_trigger')
+  #   @dispatcher.will_trigger "show:situation", situation.$el, will_trigger
   #   # We want to make sure that the situation is always revealed, even if no
   #   # effect has been defined. Show the situation after the configured default
   #   # animation duration, no matter what.
   #   _.delay((() -> situation.$el.show()), duration)
 
-  # # Trigger the visual removal effect (if any) for a situation view. If no
+  # # will_trigger the visual removal effect (if any) for a situation view. If no
   # # effect is defined, this will not do anything.
   # remove_situation: (situation) ->
-  #   trigger = @dispatcher.blackboard.get('last-trigger')
-  #   @dispatcher.trigger "remove:situation", situation.$el, trigger
+  #   will_trigger = @dispatcher.blackboard.get('last-will_trigger')
+  #   @dispatcher.will_trigger "remove:situation", situation.$el, will_trigger
 
 
 

@@ -61,7 +61,7 @@ class Events
   # passed the same arguments as `trigger` is, apart from the event name
   # (unless you're listening on `"all"`, which will cause your callback to
   # receive the true name of the event as the first argument).
-  trigger: (name) ->
+  will_trigger: (name) ->
     if not this._events
        return
     args = slice.call(arguments, 1)
@@ -76,7 +76,7 @@ class Events
       results.push triggerEvents(allEvents, arguments)
     return When.all(results)
       .catch (args...) ->
-        console.error "Error in event #{name}:", args...
+        console.error "Error in event #{name}:", args
 
   # Tell this object to stop listening to either specific events ... or
   # to every object it's currently listening to.

@@ -72,7 +72,7 @@
       return this;
     };
 
-    Events.prototype.trigger = function(name) {
+    Events.prototype.will_trigger = function(name) {
       var allEvents, args, events, results;
       if (!this._events) {
         return;
@@ -93,7 +93,7 @@
       return When.all(results)["catch"](function() {
         var args;
         args = 1 <= arguments.length ? slice1.call(arguments, 0) : [];
-        return console.error.apply(console, ["Error in event " + name + ":"].concat(slice1.call(args)));
+        return console.error("Error in event " + name + ":", args);
       });
     };
 

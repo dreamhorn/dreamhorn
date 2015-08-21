@@ -41,7 +41,7 @@
           var args, event, ref;
           event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
           console.debug.apply(console, ["*" + event + "* event on Dreamhorn core:"].concat(slice.call(args)));
-          return (ref = _this.decks).trigger.apply(ref, [event].concat(slice.call(args)));
+          return (ref = _this.decks).will_trigger.apply(ref, [event].concat(slice.call(args)));
         };
       })(this));
     }
@@ -64,7 +64,7 @@
         options: options,
         active: false
       };
-      return this.trigger('module:used', mod).then((function(_this) {
+      return this.will_trigger('module:used', mod).then((function(_this) {
         return function() {
           return mod.instance;
         };
@@ -85,12 +85,12 @@
       promises = [];
       mod = this.get_module(module_id);
       if (!mod.active) {
-        promises.push(this.trigger('module:starting', mod));
+        promises.push(this.will_trigger('module:starting', mod));
         if (_.isFunction(mod.instance.start)) {
           promises.push(mod.instance.start());
         }
         mod.active = true;
-        promises.push(this.trigger('module:started', mod).then((function(_this) {
+        promises.push(this.will_trigger('module:started', mod).then((function(_this) {
           return function() {
             return mod.instance;
           };
@@ -106,12 +106,12 @@
       promises = [];
       mod = this.get_module(module_id);
       if (mod.active) {
-        promises.push(this.trigger('module:stopping', mod));
+        promises.push(this.will_trigger('module:stopping', mod));
         if (_.isFunction(mod.instance.stop)) {
           promises.push(mod.instance.stop());
         }
         mod.active = false;
-        promises.push(this.trigger('module:stopped', mod).then((function(_this) {
+        promises.push(this.will_trigger('module:stopped', mod).then((function(_this) {
           return function() {
             return mod.instance;
           };

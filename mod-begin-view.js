@@ -34,7 +34,8 @@
     BeginViewModule.prototype.setup = function() {
       return this.will_render().then((function(_this) {
         return function(html) {
-          return dom.wrap(_this.el).append(html);
+          dom.wrap(_this.el).append(html);
+          return _this.will_animate_in();
         };
       })(this));
     };

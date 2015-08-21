@@ -1,6 +1,7 @@
 "use strict"
 _ = require('lodash')
 Events = require('./events')
+When = require('when')
 
 
 class Stack extends Events
@@ -10,31 +11,32 @@ class Stack extends Events
   clear: (data) ->
     @_data = [null]
     @length = 0
-    @trigger 'cleared', data
+    return @will_trigger('cleared', data).then () ->
+      return data
 
   push: (item, data) ->
     @length += 1
     @_data[@length] = item
-    @trigger 'pushed', item, data
-    return this
+    @will_trigger('pushed', item, data).then () ->
+      return [item, data]
 
   peek: () ->
     return @_data[@length]
 
-  pop: (data) ->
+  pop: When.lift (data) ->
     if @length > 0
       @length -= 1
       popped = this._data.pop()
-      @trigger 'popped', popped, data
-      return popped
+      return @will_trigger('popped', popped, data).then () ->
+        return [popped, data]
     else
-      return undefined
+      throw new Error("Empty stack. No item to pop!")
 
   drop: (item, data) ->
     dropped = _.remove(@_data, _.matchesProperty('id', item.id))[0]
     @length = @_data.length - 1
-    @trigger 'dropped', dropped, data
-    return dropped
+    @will_trigger('dropped', dropped, data).then () ->
+      return [dropped, data]
 
 
 module.exports = Stack

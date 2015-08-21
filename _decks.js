@@ -22,7 +22,7 @@
       options.name = name;
       options.base = this.base;
       this._decks[name] = deck = new this.options.deck_type(options);
-      this.base.trigger('deck:new', deck, options);
+      this.base.will_trigger('deck:new', deck, options);
       return deck;
     };
 
@@ -39,14 +39,14 @@
       return _.values(this._decks);
     };
 
-    Decks.prototype.trigger = function() {
+    Decks.prototype.will_trigger = function() {
       var args, deck, event, id, ref, results;
       event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       ref = this._decks;
       results = [];
       for (id in ref) {
         deck = ref[id];
-        results.push(deck.trigger.apply(deck, [event].concat(slice.call(args))));
+        results.push(deck.will_trigger.apply(deck, [event].concat(slice.call(args))));
       }
       return results;
     };

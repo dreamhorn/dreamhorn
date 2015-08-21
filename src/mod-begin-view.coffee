@@ -17,6 +17,7 @@ class BeginViewModule extends ViewModule
   setup: () ->
     @will_render().then (html) =>
       dom.wrap(@el).append(html)
+      @will_animate_in()
 
   teardown: () ->
     dom.wrap(@el).empty()
