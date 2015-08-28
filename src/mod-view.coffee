@@ -16,7 +16,7 @@ class ViewModule
     effect_out: 'default-out'
 
   constructor: (@deck, options) ->
-    @options = _.defaultsDeep {}, options, @defaults, this.constructor.__super__.defaults
+    @options = _.defaults {}, options, @defaults, this.constructor.__super__.defaults
     @template = if @options.template
       templates.compile_template(@options.template)
     else
@@ -38,9 +38,9 @@ class ViewModule
 
   will_get_context: (overrides) ->
     @will_get_ambient_context().then (ambient_context) =>
-      local_context = When @get_context(ambient_context)
+      local_context = @get_context(ambient_context)
       return When(local_context).then (local) =>
-        return _.defaultsDeep {}, overrides, local, @options
+        return _.defaults {}, overrides, local, @options
 
   will_render: (overrides) ->
     @will_get_context(overrides).then (context) =>
@@ -103,14 +103,13 @@ class ViewModule
       return mod.instance
 
   get_subview: (subview_id) ->
-    mod = @subviews[subview_id]
-    if not mod
-      throw new Error("No such subview instance with id #{subview_id}!")
-    return mod
+    return @subviews[subview_id]
 
   will_start_subview: (subview_id) ->
     promises = []
     mod = @get_subview subview_id
+    if not mod
+      throw new Error "No such subview #{subview_id}"
     if not mod.active
       promises.push @deck.will_trigger 'subview:starting', mod
       if _.isFunction mod.instance.start
@@ -126,6 +125,8 @@ class ViewModule
   will_stop_subview: (subview_id) ->
     promises = []
     mod = @get_subview subview_id
+    if not mod
+      throw new Error "No such subview #{subview_id}"
     if mod.active
       promises.push @deck.will_trigger 'subview:stopping', mod
       if _.isFunction mod.instancpe.stop

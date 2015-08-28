@@ -15,10 +15,10 @@
     extend(Stack, superClass);
 
     function Stack() {
-      this.clear();
+      this.will_clear();
     }
 
-    Stack.prototype.clear = function(data) {
+    Stack.prototype.will_clear = function(data) {
       this._data = [null];
       this.length = 0;
       return this.will_trigger('cleared', data).then(function() {
@@ -26,7 +26,7 @@
       });
     };
 
-    Stack.prototype.push = function(item, data) {
+    Stack.prototype.will_push = function(item, data) {
       this.length += 1;
       this._data[this.length] = item;
       return this.will_trigger('pushed', item, data).then(function() {
@@ -38,7 +38,7 @@
       return this._data[this.length];
     };
 
-    Stack.prototype.pop = When.lift(function(data) {
+    Stack.prototype.will_pop = When.lift(function(data) {
       var popped;
       if (this.length > 0) {
         this.length -= 1;
@@ -51,7 +51,7 @@
       }
     });
 
-    Stack.prototype.drop = function(item, data) {
+    Stack.prototype.will_drop = function(item, data) {
       var dropped;
       dropped = _.remove(this._data, _.matchesProperty('id', item.id))[0];
       this.length = this._data.length - 1;

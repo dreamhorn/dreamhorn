@@ -23,13 +23,13 @@
     extend(Deck, superClass);
 
     function Deck(options) {
-      this.replace = bind(this.replace, this);
-      this.clear = bind(this.clear, this);
-      this.drop = bind(this.drop, this);
-      this.pop = bind(this.pop, this);
-      this.push = bind(this.push, this);
+      this.will_replace = bind(this.will_replace, this);
+      this.will_clear = bind(this.will_clear, this);
+      this.will_drop = bind(this.will_drop, this);
+      this.will_pop = bind(this.will_pop, this);
+      this.will_push = bind(this.will_push, this);
       options = options || {};
-      this.options = _.defaultsDeep({}, options, Deck.defaults);
+      this.options = _.defaults({}, options, Deck.defaults);
       this.name = this.options.name;
       this.base = this.options.base;
       this.stack = new Stack();
@@ -100,7 +100,7 @@
       return this.will_trigger('seen', card);
     };
 
-    Deck.prototype.push = function(data) {
+    Deck.prototype.will_push = function(data) {
       var card;
       if (_.isString(data)) {
         data = {
@@ -108,30 +108,46 @@
         };
       }
       card = data.target;
-      this.stack.push(card, data);
-      this.mark_seen(card);
-      return card;
+      if (_.isString(card)) {
+        card = this.will_get_card(card);
+      }
+      return When(card).then((function(_this) {
+        return function(card) {
+          return _this.stack.will_push(card, data).then(function() {
+            _this.mark_seen(card);
+            return card;
+          });
+        };
+      })(this));
     };
 
-    Deck.prototype.pop = function(data) {
-      return this.stack.pop(data);
+    Deck.prototype.will_pop = function(data) {
+      return this.stack.will_pop(data);
     };
 
-    Deck.prototype.drop = function(data) {
-      return this.stack.drop(data.from_card, data);
+    Deck.prototype.will_drop = function(data) {
+      When(data.from_card).then(card);
+      return this.stack.will_drop(data.from_card, data);
     };
 
-    Deck.prototype.clear = function(data) {
-      this.stack.clear(data);
-      return this.push(data);
+    Deck.prototype.will_clear = function(data) {
+      return this.stack.will_clear(data).then((function(_this) {
+        return function() {
+          return _this.will_push(data);
+        };
+      })(this));
     };
 
-    Deck.prototype.replace = function(data) {
-      var card, popped;
-      popped = this.pop(data);
-      card = this.push(data);
-      this.stack.will_trigger('replaced', popped, card, data);
-      return [popped, card];
+    Deck.prototype.will_replace = function(data) {
+      return this.will_pop(data).then((function(_this) {
+        return function(popped) {
+          var card;
+          card = _this.will_push(data);
+          return _this.stack.will_trigger('replaced', popped, card, data).then(function() {
+            return [popped, card];
+          });
+        };
+      })(this));
     };
 
     Deck.prototype.extend = function(extensions) {
@@ -175,7 +191,7 @@
   };
 
   Deck.extend_defaults = function(extensions) {
-    return Deck.defaults = _.defaultsDeep({}, extensions, Deck.defaults);
+    return Deck.defaults = _.defaults({}, extensions, Deck.defaults);
   };
 
   module.exports = Deck;

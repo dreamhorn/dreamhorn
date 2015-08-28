@@ -96,20 +96,19 @@
     };
 
     CardStackViewModule.prototype.will_ensure_card_view = function(card, options) {
-      var error;
-      try {
-        return When(this.get_subview(card.id));
-      } catch (_error) {
-        error = _error;
-        options = _.defaultsDeep({
+      var subview;
+      subview = this.get_subview(card.id);
+      if (_.isUndefined(subview)) {
+        options = _.defaults({
           card: card
         }, options);
-        return this.will_use_subview({
+        subview = this.will_use_subview({
           id: card.id,
           type: CardView,
           options: options
         });
       }
+      return subview;
     };
 
     CardStackViewModule.prototype.will_start_card_view = function(card, options) {

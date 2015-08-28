@@ -75,7 +75,7 @@
     Events.prototype.will_trigger = function(name) {
       var allEvents, args, events, results;
       if (!this._events) {
-        return;
+        return When(void 0);
       }
       args = slice.call(arguments, 1);
       if (!eventsApi(this, 'trigger', name, args)) {

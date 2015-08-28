@@ -64,7 +64,7 @@
       })(this));
     };
 
-    CardViewModule.prototype.will_get_content = function(card) {
+    CardViewModule.prototype.will_get_content = function(card, context) {
       return When(card.will_get_content(context)).then((function(_this) {
         return function(raw_content) {
           var content;
@@ -74,7 +74,7 @@
       })(this));
     };
 
-    CardViewModule.prototype.will_get_choices = function(card) {
+    CardViewModule.prototype.will_get_choices = function(card, context) {
       return When(card.will_get_choices(context)).then((function(_this) {
         return function(raw_choices) {
           return _.map(raw_choices, function(arg) {

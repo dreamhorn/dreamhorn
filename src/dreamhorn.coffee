@@ -16,7 +16,7 @@ assert = require('./assert')
 class Dreamhorn extends Events
   constructor: (options) ->
     options = options || {}
-    @options = _.defaultsDeep {}, options, Dreamhorn.defaults
+    @options = _.defaults {}, options, Dreamhorn.defaults
 
     @decks = new Decks(this, @options)
     @decks.define(@options.main_deck)
@@ -35,7 +35,7 @@ class Dreamhorn extends Events
 
   will_use_module: ({id: module_id, type: module_type, deck: deck_id, options: options}) ->
     deck = @decks.get deck_id || @options.main_deck
-    options = _.defaultsDeep {}, options, @options
+    options = _.defaults {}, options, @options
     mod = @modules[module_id] =
       id: module_id
       instance: new module_type(deck, options)
@@ -95,7 +95,7 @@ Dreamhorn.extend = (extensions) ->
 
 
 Dreamhorn.extend_defaults = (extensions) ->
-  _.extend(Dreamhorn.defaults, _.defaultsDeep({}, extensions, Dreamhorn.defaults))
+  _.extend(Dreamhorn.defaults, _.defaults({}, extensions, Dreamhorn.defaults))
 
 Dreamhorn.defaults =
   deck_type: Deck

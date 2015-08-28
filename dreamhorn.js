@@ -31,7 +31,7 @@
 
     function Dreamhorn(options) {
       options = options || {};
-      this.options = _.defaultsDeep({}, options, Dreamhorn.defaults);
+      this.options = _.defaults({}, options, Dreamhorn.defaults);
       this.decks = new Decks(this, this.options);
       this.decks.define(this.options.main_deck);
       this.effects = new Effects(this.options);
@@ -55,7 +55,7 @@
       var deck, deck_id, mod, module_id, module_type, options;
       module_id = arg.id, module_type = arg.type, deck_id = arg.deck, options = arg.options;
       deck = this.decks.get(deck_id || this.options.main_deck);
-      options = _.defaultsDeep({}, options, this.options);
+      options = _.defaults({}, options, this.options);
       mod = this.modules[module_id] = {
         id: module_id,
         instance: new module_type(deck, options),
@@ -152,7 +152,7 @@
   };
 
   Dreamhorn.extend_defaults = function(extensions) {
-    return _.extend(Dreamhorn.defaults, _.defaultsDeep({}, extensions, Dreamhorn.defaults));
+    return _.extend(Dreamhorn.defaults, _.defaults({}, extensions, Dreamhorn.defaults));
   };
 
   Dreamhorn.defaults = {

@@ -26,7 +26,7 @@
 
     function ViewModule(deck, options) {
       this.deck = deck;
-      this.options = _.defaultsDeep({}, options, this.defaults, this.constructor.__super__.defaults);
+      this.options = _.defaults({}, options, this.defaults, this.constructor.__super__.defaults);
       this.template = this.options.template ? templates.compile_template(this.options.template) : function() {
         return '';
       };
@@ -52,9 +52,9 @@
       return this.will_get_ambient_context().then((function(_this) {
         return function(ambient_context) {
           var local_context;
-          local_context = When(_this.get_context(ambient_context));
+          local_context = _this.get_context(ambient_context);
           return When(local_context).then(function(local) {
-            return _.defaultsDeep({}, overrides, local, _this.options);
+            return _.defaults({}, overrides, local, _this.options);
           });
         };
       })(this));
@@ -154,18 +154,16 @@
     };
 
     ViewModule.prototype.get_subview = function(subview_id) {
-      var mod;
-      mod = this.subviews[subview_id];
-      if (!mod) {
-        throw new Error("No such subview instance with id " + subview_id + "!");
-      }
-      return mod;
+      return this.subviews[subview_id];
     };
 
     ViewModule.prototype.will_start_subview = function(subview_id) {
       var mod, promises;
       promises = [];
       mod = this.get_subview(subview_id);
+      if (!mod) {
+        throw new Error("No such subview " + subview_id);
+      }
       if (!mod.active) {
         promises.push(this.deck.will_trigger('subview:starting', mod));
         if (_.isFunction(mod.instance.start)) {
@@ -187,6 +185,9 @@
       var mod, promises;
       promises = [];
       mod = this.get_subview(subview_id);
+      if (!mod) {
+        throw new Error("No such subview " + subview_id);
+      }
       if (mod.active) {
         promises.push(this.deck.will_trigger('subview:stopping', mod));
         if (_.isFunction(mod.instancpe.stop)) {

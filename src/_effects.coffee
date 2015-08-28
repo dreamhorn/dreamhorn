@@ -6,7 +6,7 @@ dom = require('./dom')
 
 class Effects
   constructor: (options) ->
-    @options = _.defaultsDeep({}, options)
+    @options = _.defaults({}, options)
     @_effects = {}
 
     @define 'default-in', (el, options) ->
@@ -25,7 +25,7 @@ class Effects
     return effect
 
   run: (name, el, options) ->
-    options = _.defaultsDeep({}, options, @options)
+    options = _.defaults({}, options, @options)
     try
       return When.try @get(name), el, options
     catch error

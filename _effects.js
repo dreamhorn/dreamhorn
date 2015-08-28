@@ -11,7 +11,7 @@
 
   Effects = (function() {
     function Effects(options) {
-      this.options = _.defaultsDeep({}, options);
+      this.options = _.defaults({}, options);
       this._effects = {};
       this.define('default-in', function(el, options) {
         return dom.wrap(el).show();
@@ -36,7 +36,7 @@
 
     Effects.prototype.run = function(name, el, options) {
       var error;
-      options = _.defaultsDeep({}, options, this.options);
+      options = _.defaults({}, options, this.options);
       try {
         return When["try"](this.get(name), el, options);
       } catch (_error) {

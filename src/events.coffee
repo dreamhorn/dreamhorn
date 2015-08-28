@@ -63,7 +63,7 @@ class Events
   # receive the true name of the event as the first argument).
   will_trigger: (name) ->
     if not this._events
-       return
+       return When undefined
     args = slice.call(arguments, 1)
     if not eventsApi(this, 'trigger', name, args)
       return this

@@ -1,12 +1,14 @@
 "use strict"
 _ = require('lodash')
+When = require('when')
+
 
 class Decks
   constructor: (@base, @options) ->
     @_decks = {}
 
   define: (name, options={}) ->
-    options = _.defaultsDeep({}, options, @options)
+    options = _.defaults({}, options, @options)
     options.name = name
     options.base = @base
     @_decks[name] = deck = new @options.deck_type(options)
@@ -23,10 +25,7 @@ class Decks
     return _.values @_decks
 
   will_trigger: (event, args...) ->
-    When.all((
-      for id, deck of @_decks
-      deck.will_trigger(event, args...)
-    ))
+    When.all((deck.will_trigger(event, args...) for id, deck of @_decks))
 
 
 module.exports = Decks

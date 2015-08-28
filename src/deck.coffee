@@ -9,7 +9,7 @@ When = require('when')
 class Deck extends Events
   constructor: (options) ->
     options = options || {}
-    @options = _.defaultsDeep {}, options, Deck.defaults
+    @options = _.defaults {}, options, Deck.defaults
     @name = @options.name
     @base = @options.base
 
@@ -68,30 +68,34 @@ class Deck extends Events
     @seen.set card.id, if not seen then 1 else seen + 1
     @will_trigger 'seen', card
 
-  push: (data) =>
+  will_push: (data) =>
     if _.isString data
       data = {target: data}
     card = data.target
+    if _.isString card
+      card = @will_get_card card
 
-    @stack.push card, data
-    @mark_seen card
-    return card
+    When(card).then (card) =>
+      @stack.will_push(card, data).then () =>
+        @mark_seen card
+        return card
 
-  pop: (data) =>
-    return @stack.pop(data)
+  will_pop: (data) =>
+    return @stack.will_pop(data)
 
-  drop: (data) =>
-    return @stack.drop data.from_card, data
+  will_drop: (data) =>
+    When(data.from_card).then (card)
+    return @stack.will_drop data.from_card, data
 
-  clear: (data) =>
-    @stack.clear data
-    return @push data
+  will_clear: (data) =>
+    @stack.will_clear(data).then () =>
+      return @will_push data
 
-  replace: (data) =>
-    popped = @pop data
-    card = @push data
-    @stack.will_trigger 'replaced', popped, card, data
-    return [popped, card]
+  will_replace: (data) =>
+    @will_pop(data).then (popped) =>
+      card = @will_push data
+      @stack.will_trigger('replaced', popped, card, data).then () ->
+        return [popped, card]
 
   extend: (extensions) ->
     _.extend(this, extensions)
@@ -117,7 +121,7 @@ Deck.extend = (extensions) ->
 
 
 Deck.extend_defaults = (extensions) ->
-  Deck.defaults = _.defaultsDeep({}, extensions, Deck.defaults)
+  Deck.defaults = _.defaults({}, extensions, Deck.defaults)
 
 
 module.exports = Deck

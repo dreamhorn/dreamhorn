@@ -66,15 +66,15 @@ class CardStackViewModule extends ViewModule
       @reactivate_latest()
 
   will_ensure_card_view: (card, options) ->
-    try
-      return When @get_subview card.id
-    catch error
-      options = _.defaultsDeep {card: card}, options
-      @will_use_subview(
+    subview = @get_subview card.id
+    if _.isUndefined subview
+      options = _.defaults {card: card}, options
+      subview = @will_use_subview(
         id: card.id
         type: CardView
         options: options
       )
+    return subview
 
   will_start_card_view: (card, options) ->
     @will_ensure_card_view(card, options).then (view) =>

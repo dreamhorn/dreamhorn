@@ -39,7 +39,6 @@ class CardViewModule extends ViewModule
     _.extend ambient_context,
       card: card
       deck: @deck
-
     When.join(
       @will_get_header(card, ambient_context),
       @will_get_content(card, ambient_context),
@@ -56,12 +55,12 @@ class CardViewModule extends ViewModule
       header = templates.render_template(raw_header, context)
       return templates.convert_to_markdown header
 
-  will_get_content: (card) ->
+  will_get_content: (card, context) ->
     When(card.will_get_content(context)).then (raw_content) =>
       content = templates.render_template(raw_content, context)
       return templates.convert_to_markdown content
 
-  will_get_choices: (card) ->
+  will_get_choices: (card, context) ->
     When(card.will_get_choices(context)).then (raw_choices) =>
       return _.map raw_choices, ({raw_text, directive}) =>
         text = templates.render_template(raw_text, context)
