@@ -36,11 +36,11 @@
       this.cards_by_id = new Dict();
       this.cards_in_order = [];
       this.seen = new Dict();
-      this.on('replace', this.replace);
-      this.on('push', this.push);
-      this.on('pop', this.pop);
-      this.on('drop', this.drop);
-      this.on('clear', this.clear);
+      this.on('replace', this.will_replace);
+      this.on('push', this.will_push);
+      this.on('pop', this.will_pop);
+      this.on('drop', this.will_drop);
+      this.on('clear', this.will_clear);
       this.on('all', (function(_this) {
         return function() {
           var args, event;
@@ -51,12 +51,15 @@
     }
 
     Deck.prototype.card = function(id, data) {
-      return this.add_card(new Card(id, data));
+      return this.add_card(new Card({
+        id: id,
+        deck: this,
+        data: data
+      }));
     };
 
     Deck.prototype.add_card = function(card) {
       card.index = this.cards_in_order.length;
-      card.deck = this;
       this.cards_by_id.set(card.id.toLowerCase(), card);
       this.cards_in_order.push(card);
       this.will_trigger('card:add', card);
@@ -126,8 +129,11 @@
     };
 
     Deck.prototype.will_drop = function(data) {
-      When(data.from_card).then(card);
-      return this.stack.will_drop(data.from_card, data);
+      return When(data.from_card).then((function(_this) {
+        return function(card) {
+          return _this.stack.will_drop(data.from_card, data);
+        };
+      })(this));
     };
 
     Deck.prototype.will_clear = function(data) {

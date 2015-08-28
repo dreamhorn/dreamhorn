@@ -19,25 +19,24 @@ class Deck extends Events
 
     @seen = new Dict()
 
-    @on 'replace', @replace
+    @on 'replace', @will_replace
 
-    @on 'push', @push
+    @on 'push', @will_push
 
-    @on 'pop', @pop
+    @on 'pop', @will_pop
 
-    @on 'drop', @drop
+    @on 'drop', @will_drop
 
-    @on 'clear', @clear
+    @on 'clear', @will_clear
 
     @on 'all', (event, args...) =>
       console.debug "*#{event}* event on #{@options.name}:", args...
 
   card: (id, data) ->
-    return @add_card new Card(id, data)
+    return @add_card new Card({id: id, deck: this, data: data})
 
   add_card: (card) ->
     card.index = @cards_in_order.length
-    card.deck = this
     @cards_by_id.set card.id.toLowerCase(), card
     @cards_in_order.push card
     @will_trigger 'card:add', card
@@ -84,8 +83,8 @@ class Deck extends Events
     return @stack.will_pop(data)
 
   will_drop: (data) =>
-    When(data.from_card).then (card)
-    return @stack.will_drop data.from_card, data
+    When(data.from_card).then (card) =>
+      return @stack.will_drop data.from_card, data
 
   will_clear: (data) =>
     @stack.will_clear(data).then () =>

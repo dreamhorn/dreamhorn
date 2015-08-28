@@ -28,7 +28,7 @@
     };
 
     BeginViewModule.prototype.events = {
-      "click a#begin-btn": "on_begin"
+      'click a#begin-btn': 'on_begin'
     };
 
     BeginViewModule.prototype.setup = function() {

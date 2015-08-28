@@ -79,7 +79,7 @@ class ViewModule
       @el = dom.query(@selector)[0]
     else if not @selector and not @el
       @el = @will_render().then (html) =>
-        @el = dom.make html
+        @el = dom.make(html)[0]
     return When.join(@el, @setup())
       .then(@connect_events)
 

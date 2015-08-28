@@ -120,7 +120,7 @@
       } else if (!this.selector && !this.el) {
         this.el = this.will_render().then((function(_this) {
           return function(html) {
-            return _this.el = dom.make(html);
+            return _this.el = dom.make(html)[0];
           };
         })(this));
       }

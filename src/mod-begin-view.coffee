@@ -12,7 +12,7 @@ class BeginViewModule extends ViewModule
     template: '<a class="button button--primary begin-box__btn" id="begin-btn" href="#">{{ begin_text }}</a>'
 
   events:
-    "click a#begin-btn": "on_begin"
+    'click a#begin-btn': 'on_begin'
 
   setup: () ->
     @will_render().then (html) =>

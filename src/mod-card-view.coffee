@@ -24,7 +24,7 @@ class CardViewModule extends ViewModule
         <ul class="card__choices card--{{ deck.name }}__choices">
           {{#each choices}}
           <li class="card__choices__choice">
-            <a href="{{ target }}">{{{ text }}}</a>
+            <a data-target="{{ target }}" href="#">{{{ text }}}</a>
           </li>
           {{/each}}
         </div>
@@ -32,7 +32,8 @@ class CardViewModule extends ViewModule
       </div>
       '''
 
-  events: {}
+  events:
+    'click a': 'on_choice_click'
 
   get_context: (ambient_context) ->
     card = @options.card
@@ -49,22 +50,22 @@ class CardViewModule extends ViewModule
         content: content
         choices: choices
 
-
   will_get_header: (card, context) ->
-    When(card.will_get_header(context)).then (raw_header) =>
+    When(card.header).then (raw_header) =>
       header = templates.render_template(raw_header, context)
       return templates.convert_to_markdown header
 
   will_get_content: (card, context) ->
-    When(card.will_get_content(context)).then (raw_content) =>
+    When(card.content).then (raw_content) =>
       content = templates.render_template(raw_content, context)
       return templates.convert_to_markdown content
 
   will_get_choices: (card, context) ->
-    When(card.will_get_choices(context)).then (raw_choices) =>
-      return _.map raw_choices, ({raw_text, directive}) =>
-        text = templates.render_template(raw_text, context)
-        return card.parse_directive text, directive
+    When(card.choices).then (choices) =>
+      for choice in choices
+        if _.isUndefined choice.text
+          choice.text = templates.render_template choice.raw_text, context
+      return choices
 
   setup: () ->
     @deck.on 'card:deactivate-all', @on_deactivate
@@ -76,5 +77,12 @@ class CardViewModule extends ViewModule
   on_deactivate: () =>
     ;
 
+  on_choice_click: (evt) =>
+    card = @options.card
+    target = dom.wrap(evt.target).data('target')
+    choice = card.choices_by_target[target]
+    card.will_choose(choice).then (result) =>
+      if _.isString result
+        dom.wrap(@el).replaceWith templates.convert_to_markdown result
 
 module.exports = CardViewModule
