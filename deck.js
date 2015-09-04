@@ -189,7 +189,8 @@
   })(Events);
 
   Deck.defaults = {
-    begin_card: 'begin'
+    begin_card: 'begin',
+    default_action: 'push'
   };
 
   Deck.extend = function(extensions) {

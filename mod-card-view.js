@@ -58,7 +58,7 @@
     };
 
     CardViewModule.prototype.will_get_header = function(card, context) {
-      return When(card.header).then((function(_this) {
+      return card.will_get_header().then((function(_this) {
         return function(raw_header) {
           var header;
           header = templates.render_template(raw_header, context);
@@ -68,7 +68,7 @@
     };
 
     CardViewModule.prototype.will_get_content = function(card, context) {
-      return When(card.content).then((function(_this) {
+      return card.will_get_content().then((function(_this) {
         return function(raw_content) {
           var content;
           content = templates.render_template(raw_content, context);
@@ -78,7 +78,7 @@
     };
 
     CardViewModule.prototype.will_get_choices = function(card, context) {
-      return When(card.choices).then((function(_this) {
+      return card.will_get_choices().then((function(_this) {
         return function(choices) {
           var choice, i, len;
           for (i = 0, len = choices.length; i < len; i++) {
@@ -104,15 +104,19 @@
     CardViewModule.prototype.on_deactivate = function() {};
 
     CardViewModule.prototype.on_choice_click = function(evt) {
-      var card, choice, target;
+      var card, target;
+      evt.preventDefault();
       card = this.options.card;
       target = dom.wrap(evt.target).data('target');
-      choice = card.choices_by_target[target];
-      return card.will_choose(choice).then((function(_this) {
-        return function(result) {
-          if (_.isString(result)) {
-            return dom.wrap(_this.el).replaceWith(templates.convert_to_markdown(result));
-          }
+      return card.will_get_choices_by_target().then((function(_this) {
+        return function(choices) {
+          var choice;
+          choice = choices[target];
+          return card.will_choose(choice, evt.target).then(function(result) {
+            if (_.isString(result)) {
+              return dom.wrap(_this.el).replaceWith(templates.convert_to_markdown(result));
+            }
+          });
         };
       })(this));
     };

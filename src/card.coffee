@@ -27,34 +27,7 @@ class Card
 
     @default_action = @default_action or 'push'
 
-    @header = @will_get_attribute('header').then (header) =>
-      @header = header
-      return header
 
-    @content = @will_get_attribute('content').then (content) =>
-      @content = content
-      return content
-
-    @choices = @will_get_attribute('choices', _default={}).then (raw_choices) =>
-      choices = []
-      for raw_text, directive of raw_choices
-        if _.isString directive
-          choice = @parse_directive raw_text, directive
-        else
-          choice = directive
-          if not directive.raw
-            choice.raw = "#{directive.action}!#{directive.name}"
-        choice.raw_text = raw_text
-        choices.push choice
-      @choices = choices
-      return choices
-
-    @choices_by_target = When(@choices).then (choices) =>
-      cbt = {}
-      for choice in choices
-        cbt[choice.target] = choice
-      @choices_by_target = cbt
-      return cbt
 
   will_get_attribute: When.lift (name, _default='') ->
     value = this[name]
@@ -63,9 +36,53 @@ class Card
     When(value).then (value) ->
       return value or _default
 
-  will_choose: (choice) ->
+  will_get_header: () ->
+    if not _.isUndefined @_header
+      return When @_header
+    else
+      @will_get_attribute('header').then (header) =>
+        @_header = header
+        return header
+
+  will_get_content: () ->
+    if not _.isUndefined @_content
+      return When @_content
+    else
+      @will_get_attribute('content').then (content) =>
+        @_content = content
+        return content
+
+  will_get_choices: () ->
+    if not _.isUndefined @_choices
+      return When @_choices
+    else
+      @will_get_attribute('choices', _default={}).then (raw_choices) =>
+        choices = @_choices = []
+        for raw_text, directive of raw_choices
+          if _.isString directive
+            choice = @parse_directive raw_text, directive
+          else
+            choice = directive
+            if not directive.raw
+              choice.raw = "#{directive.action}!#{directive.name}"
+          choice.raw_text = raw_text
+          choices.push choice
+        return choices
+
+  will_get_choices_by_target: () ->
+    if not _.isUndefined @_choices_by_target
+      return When @_choices_by_target
+    else
+      @will_get_choices().then (choices) =>
+        cbt = {}
+        for choice in choices
+          cbt[choice.target] = choice
+        @choices_by_target = cbt
+        return cbt
+
+  will_choose: (choice, el) ->
     if @is_action choice.action
-      return When this.actions[choice.action](this)
+      return When this.actions[choice.action](this, el)
     else
       @deck.will_trigger(choice.action, choice).then () ->
         return
@@ -106,7 +123,7 @@ class Card
       data.target = @deck.get_card_after(@id).id
 
     else
-      data.action = config.default_action
+      data.action = @deck.options.default_action
       data.target = raw_directive
 
     if not data.target

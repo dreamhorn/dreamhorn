@@ -113,6 +113,7 @@ class Deck extends Events
 Deck.defaults =
   # The name of the card to begin with:
   begin_card: 'begin'
+  default_action: 'push'
 
 
 Deck.extend = (extensions) ->

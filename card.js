@@ -14,7 +14,7 @@
 
   Card = (function() {
     function Card(arg) {
-      var _default, data, id;
+      var data, id;
       id = arg.id, this.deck = arg.deck, data = arg.data;
       if (_.isUndefined(data)) {
         data = id;
@@ -37,51 +37,6 @@
       _.assign(this, data);
       this.index = null;
       this.default_action = this.default_action || 'push';
-      this.header = this.will_get_attribute('header').then((function(_this) {
-        return function(header) {
-          _this.header = header;
-          return header;
-        };
-      })(this));
-      this.content = this.will_get_attribute('content').then((function(_this) {
-        return function(content) {
-          _this.content = content;
-          return content;
-        };
-      })(this));
-      this.choices = this.will_get_attribute('choices', _default = {}).then((function(_this) {
-        return function(raw_choices) {
-          var choice, choices, directive, raw_text;
-          choices = [];
-          for (raw_text in raw_choices) {
-            directive = raw_choices[raw_text];
-            if (_.isString(directive)) {
-              choice = _this.parse_directive(raw_text, directive);
-            } else {
-              choice = directive;
-              if (!directive.raw) {
-                choice.raw = directive.action + "!" + directive.name;
-              }
-            }
-            choice.raw_text = raw_text;
-            choices.push(choice);
-          }
-          _this.choices = choices;
-          return choices;
-        };
-      })(this));
-      this.choices_by_target = When(this.choices).then((function(_this) {
-        return function(choices) {
-          var cbt, choice, i, len;
-          cbt = {};
-          for (i = 0, len = choices.length; i < len; i++) {
-            choice = choices[i];
-            cbt[choice.target] = choice;
-          }
-          _this.choices_by_target = cbt;
-          return cbt;
-        };
-      })(this));
     }
 
     Card.prototype.will_get_attribute = When.lift(function(name, _default) {
@@ -98,9 +53,82 @@
       });
     });
 
-    Card.prototype.will_choose = function(choice) {
+    Card.prototype.will_get_header = function() {
+      if (!_.isUndefined(this._header)) {
+        return When(this._header);
+      } else {
+        return this.will_get_attribute('header').then((function(_this) {
+          return function(header) {
+            _this._header = header;
+            return header;
+          };
+        })(this));
+      }
+    };
+
+    Card.prototype.will_get_content = function() {
+      if (!_.isUndefined(this._content)) {
+        return When(this._content);
+      } else {
+        return this.will_get_attribute('content').then((function(_this) {
+          return function(content) {
+            _this._content = content;
+            return content;
+          };
+        })(this));
+      }
+    };
+
+    Card.prototype.will_get_choices = function() {
+      var _default;
+      if (!_.isUndefined(this._choices)) {
+        return When(this._choices);
+      } else {
+        return this.will_get_attribute('choices', _default = {}).then((function(_this) {
+          return function(raw_choices) {
+            var choice, choices, directive, raw_text;
+            choices = _this._choices = [];
+            for (raw_text in raw_choices) {
+              directive = raw_choices[raw_text];
+              if (_.isString(directive)) {
+                choice = _this.parse_directive(raw_text, directive);
+              } else {
+                choice = directive;
+                if (!directive.raw) {
+                  choice.raw = directive.action + "!" + directive.name;
+                }
+              }
+              choice.raw_text = raw_text;
+              choices.push(choice);
+            }
+            return choices;
+          };
+        })(this));
+      }
+    };
+
+    Card.prototype.will_get_choices_by_target = function() {
+      if (!_.isUndefined(this._choices_by_target)) {
+        return When(this._choices_by_target);
+      } else {
+        return this.will_get_choices().then((function(_this) {
+          return function(choices) {
+            var cbt, choice, i, len;
+            cbt = {};
+            for (i = 0, len = choices.length; i < len; i++) {
+              choice = choices[i];
+              cbt[choice.target] = choice;
+            }
+            _this.choices_by_target = cbt;
+            return cbt;
+          };
+        })(this));
+      }
+    };
+
+    Card.prototype.will_choose = function(choice, el) {
       if (this.is_action(choice.action)) {
-        return When(this.actions[choice.action](this));
+        return When(this.actions[choice.action](this, el));
       } else {
         return this.deck.will_trigger(choice.action, choice).then(function() {});
       }
@@ -141,7 +169,7 @@
         data.action = this.default_action;
         data.target = this.deck.get_card_after(this.id).id;
       } else {
-        data.action = config.default_action;
+        data.action = this.deck.options.default_action;
         data.target = raw_directive;
       }
       if (!data.target) {

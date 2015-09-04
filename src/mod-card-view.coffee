@@ -51,17 +51,17 @@ class CardViewModule extends ViewModule
         choices: choices
 
   will_get_header: (card, context) ->
-    When(card.header).then (raw_header) =>
+    card.will_get_header().then (raw_header) =>
       header = templates.render_template(raw_header, context)
       return templates.convert_to_markdown header
 
   will_get_content: (card, context) ->
-    When(card.content).then (raw_content) =>
+    card.will_get_content().then (raw_content) =>
       content = templates.render_template(raw_content, context)
       return templates.convert_to_markdown content
 
   will_get_choices: (card, context) ->
-    When(card.choices).then (choices) =>
+    card.will_get_choices().then (choices) =>
       for choice in choices
         if _.isUndefined choice.text
           choice.text = templates.render_template choice.raw_text, context
@@ -78,11 +78,13 @@ class CardViewModule extends ViewModule
     ;
 
   on_choice_click: (evt) =>
+    evt.preventDefault()
     card = @options.card
     target = dom.wrap(evt.target).data('target')
-    choice = card.choices_by_target[target]
-    card.will_choose(choice).then (result) =>
-      if _.isString result
-        dom.wrap(@el).replaceWith templates.convert_to_markdown result
+    card.will_get_choices_by_target().then (choices) =>
+      choice = choices[target]
+      card.will_choose(choice, evt.target).then (result) =>
+        if _.isString result
+          dom.wrap(@el).replaceWith templates.convert_to_markdown result
 
 module.exports = CardViewModule
