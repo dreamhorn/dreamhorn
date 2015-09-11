@@ -88,7 +88,6 @@ class Deck extends Events
 
   will_drop: (data) =>
     @will_get_card_from_data(data).then (card) =>
-      debugger
       return @stack.will_drop card, data
 
   will_clear: (data) =>

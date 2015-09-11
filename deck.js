@@ -136,7 +136,6 @@
     Deck.prototype.will_drop = function(data) {
       return this.will_get_card_from_data(data).then((function(_this) {
         return function(card) {
-          debugger;
           return _this.stack.will_drop(card, data);
         };
       })(this));
