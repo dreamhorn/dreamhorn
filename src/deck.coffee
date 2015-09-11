@@ -29,6 +29,8 @@ class Deck extends Events
 
     @on 'clear', @will_clear
 
+    @on 'reset', @will_reset
+
     @on 'all', (event, args...) =>
       console.debug "*#{event}* event on #{@options.name}:", args...
 
@@ -42,9 +44,8 @@ class Deck extends Events
     @will_trigger 'card:add', card
     return card
 
-  get_card_after: (card_id) ->
-    current = @stack.peek()
-    return @cards_in_order[current.index + 1]
+  get_card_after: (card) ->
+    return @cards_in_order[card.index + 1]
 
   will_get_card: When.lift (card_id) ->
     if card_id == '-->'
@@ -67,14 +68,17 @@ class Deck extends Events
     @seen.set card.id, if not seen then 1 else seen + 1
     @will_trigger 'seen', card
 
-  will_push: (data) =>
+  will_get_card_from_data: (data) =>
     if _.isString data
       data = {target: data}
     card = data.target
     if _.isString card
       card = @will_get_card card
 
-    When(card).then (card) =>
+    return When(card)
+
+  will_push: (data) =>
+    @will_get_card_from_data(data).then (card) =>
       @stack.will_push(card, data).then () =>
         @mark_seen card
         return card
@@ -83,11 +87,15 @@ class Deck extends Events
     return @stack.will_pop(data)
 
   will_drop: (data) =>
-    When(data.from_card).then (card) =>
-      return @stack.will_drop data.from_card, data
+    @will_get_card_from_data(data).then (card) =>
+      debugger
+      return @stack.will_drop card, data
 
   will_clear: (data) =>
-    @stack.will_clear(data).then () =>
+    @stack.will_clear(data)
+
+  will_reset: (data) =>
+    @will_clear(data).then () =>
       return @will_push data
 
   will_replace: (data) =>

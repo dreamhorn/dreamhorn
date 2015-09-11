@@ -30,16 +30,20 @@
     }
 
     CardViewModule.prototype.defaults = {
-      template: '<div class="card card--{{ deck.name }} shadow--2dp" id="card-{{ deck.name }}-{{ card.id }}">\n  {{#if header}}\n  <div class="card__header card--{{ deck.name }}__header">\n    {{{ header }}}\n  </div>\n  {{/if}}\n  <div class="card__main card--{{ deck.name }}__main">\n    {{{ content }}}\n  </div>\n  {{#if choices}}\n  <ul class="card__choices card--{{ deck.name }}__choices">\n    {{#each choices}}\n    <li class="card__choices__choice">\n      <a data-target="{{ target }}" href="#">{{{ text }}}</a>\n    </li>\n    {{/each}}\n  </div>\n  {{/if}}\n</div>'
+      template: '<div class="card card--{{ deck.name }} shadow--2dp" id="card-{{ deck.name }}-{{ card.id }}">\n  {{#if header}}\n  <div class="card__header card--{{ deck.name }}__header">\n    {{{ header }}}\n  </div>\n  {{/if}}\n  <div class="card__main card--{{ deck.name }}__main">\n    {{{ content }}}\n  </div>\n  {{#if choices}}\n  <ul class="card__choices card--{{ deck.name }}__choices">\n    {{#each choices}}\n    <li class="card__choices__choice">\n      <a data-target="{{ raw }}" href="#">{{{ text }}}</a>\n    </li>\n    {{/each}}\n  </div>\n  {{/if}}\n</div>'
     };
 
     CardViewModule.prototype.events = {
       'click a': 'on_choice_click'
     };
 
+    CardViewModule.prototype.get_card = function() {
+      return this.options.card;
+    };
+
     CardViewModule.prototype.get_context = function(ambient_context) {
       var card;
-      card = this.options.card;
+      card = this.get_card();
       _.extend(ambient_context, {
         card: card,
         deck: this.deck
@@ -97,17 +101,18 @@
     };
 
     CardViewModule.prototype.teardown = function() {
-      dom.wrap(this.el).empty();
+      dom.wrap(this.el).empty().remove();
       return this.deck.off('card:deactivate-all', this.on_deactivate);
     };
 
     CardViewModule.prototype.on_deactivate = function() {};
 
     CardViewModule.prototype.on_choice_click = function(evt) {
-      var card, target;
+      var $el, card, target;
       evt.preventDefault();
       card = this.options.card;
-      target = dom.wrap(evt.target).data('target');
+      $el = dom.wrap(evt.target);
+      target = $el.data('target');
       return card.will_get_choices_by_target().then((function(_this) {
         return function(choices) {
           var choice;

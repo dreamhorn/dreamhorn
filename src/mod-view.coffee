@@ -129,14 +129,15 @@ class ViewModule
       throw new Error "No such subview #{subview_id}"
     if mod.active
       promises.push @deck.will_trigger 'subview:stopping', mod
-      if _.isFunction mod.instancpe.stop
+      if _.isFunction mod.instance.stop
         promises.push mod.instance.stop()
       mod.active = false
       promises.push @deck.will_trigger('subview:stopped', mod).then () ->
         return mod.instance
     else
       promises.push When mod.instance
-    return When.all promises
+    return When.all(promises).then () ->
+      return mod.instance
 
 
 module.exports = ViewModule

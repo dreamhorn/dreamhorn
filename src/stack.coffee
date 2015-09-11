@@ -9,10 +9,14 @@ class Stack extends Events
     @will_clear()
 
   will_clear: (data) ->
+    if not _.isUndefined @_data
+      cleared = @_data.slice(1)
+    else
+      cleared = []
     @_data = [null]
     @length = 0
-    return @will_trigger('cleared', data).then () ->
-      return data
+    return @will_trigger('cleared', cleared, data).then () ->
+      return [cleared, data]
 
   will_push: (item, data) ->
     @length += 1

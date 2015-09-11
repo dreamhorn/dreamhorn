@@ -24,10 +24,12 @@
 
     function Deck(options) {
       this.will_replace = bind(this.will_replace, this);
+      this.will_reset = bind(this.will_reset, this);
       this.will_clear = bind(this.will_clear, this);
       this.will_drop = bind(this.will_drop, this);
       this.will_pop = bind(this.will_pop, this);
       this.will_push = bind(this.will_push, this);
+      this.will_get_card_from_data = bind(this.will_get_card_from_data, this);
       options = options || {};
       this.options = _.defaults({}, options, Deck.defaults);
       this.name = this.options.name;
@@ -41,6 +43,7 @@
       this.on('pop', this.will_pop);
       this.on('drop', this.will_drop);
       this.on('clear', this.will_clear);
+      this.on('reset', this.will_reset);
       this.on('all', (function(_this) {
         return function() {
           var args, event;
@@ -66,10 +69,8 @@
       return card;
     };
 
-    Deck.prototype.get_card_after = function(card_id) {
-      var current;
-      current = this.stack.peek();
-      return this.cards_in_order[current.index + 1];
+    Deck.prototype.get_card_after = function(card) {
+      return this.cards_in_order[card.index + 1];
     };
 
     Deck.prototype.will_get_card = When.lift(function(card_id) {
@@ -103,7 +104,7 @@
       return this.will_trigger('seen', card);
     };
 
-    Deck.prototype.will_push = function(data) {
+    Deck.prototype.will_get_card_from_data = function(data) {
       var card;
       if (_.isString(data)) {
         data = {
@@ -114,7 +115,11 @@
       if (_.isString(card)) {
         card = this.will_get_card(card);
       }
-      return When(card).then((function(_this) {
+      return When(card);
+    };
+
+    Deck.prototype.will_push = function(data) {
+      return this.will_get_card_from_data(data).then((function(_this) {
         return function(card) {
           return _this.stack.will_push(card, data).then(function() {
             _this.mark_seen(card);
@@ -129,15 +134,20 @@
     };
 
     Deck.prototype.will_drop = function(data) {
-      return When(data.from_card).then((function(_this) {
+      return this.will_get_card_from_data(data).then((function(_this) {
         return function(card) {
-          return _this.stack.will_drop(data.from_card, data);
+          debugger;
+          return _this.stack.will_drop(card, data);
         };
       })(this));
     };
 
     Deck.prototype.will_clear = function(data) {
-      return this.stack.will_clear(data).then((function(_this) {
+      return this.stack.will_clear(data);
+    };
+
+    Deck.prototype.will_reset = function(data) {
+      return this.will_clear(data).then((function(_this) {
         return function() {
           return _this.will_push(data);
         };

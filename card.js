@@ -117,7 +117,7 @@
             cbt = {};
             for (i = 0, len = choices.length; i < len; i++) {
               choice = choices[i];
-              cbt[choice.target] = choice;
+              cbt[choice.raw] = choice;
             }
             _this.choices_by_target = cbt;
             return cbt;
@@ -167,7 +167,7 @@
         }
       } else if (raw_directive === '-->') {
         data.action = this.default_action;
-        data.target = this.deck.get_card_after(this.id).id;
+        data.target = this.deck.get_card_after(this).id;
       } else {
         data.action = this.deck.options.default_action;
         data.target = raw_directive;

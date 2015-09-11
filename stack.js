@@ -19,10 +19,16 @@
     }
 
     Stack.prototype.will_clear = function(data) {
+      var cleared;
+      if (!_.isUndefined(this._data)) {
+        cleared = this._data.slice(1);
+      } else {
+        cleared = [];
+      }
       this._data = [null];
       this.length = 0;
-      return this.will_trigger('cleared', data).then(function() {
-        return data;
+      return this.will_trigger('cleared', cleared, data).then(function() {
+        return [cleared, data];
       });
     };
 

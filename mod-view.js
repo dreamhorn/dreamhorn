@@ -190,7 +190,7 @@
       }
       if (mod.active) {
         promises.push(this.deck.will_trigger('subview:stopping', mod));
-        if (_.isFunction(mod.instancpe.stop)) {
+        if (_.isFunction(mod.instance.stop)) {
           promises.push(mod.instance.stop());
         }
         mod.active = false;
@@ -200,7 +200,9 @@
       } else {
         promises.push(When(mod.instance));
       }
-      return When.all(promises);
+      return When.all(promises).then(function() {
+        return mod.instance;
+      });
     };
 
     return ViewModule;

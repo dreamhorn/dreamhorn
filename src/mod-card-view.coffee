@@ -24,7 +24,7 @@ class CardViewModule extends ViewModule
         <ul class="card__choices card--{{ deck.name }}__choices">
           {{#each choices}}
           <li class="card__choices__choice">
-            <a data-target="{{ target }}" href="#">{{{ text }}}</a>
+            <a data-target="{{ raw }}" href="#">{{{ text }}}</a>
           </li>
           {{/each}}
         </div>
@@ -35,8 +35,11 @@ class CardViewModule extends ViewModule
   events:
     'click a': 'on_choice_click'
 
+  get_card: () ->
+    return @options.card
+
   get_context: (ambient_context) ->
-    card = @options.card
+    card = @get_card()
     _.extend ambient_context,
       card: card
       deck: @deck
@@ -71,7 +74,7 @@ class CardViewModule extends ViewModule
     @deck.on 'card:deactivate-all', @on_deactivate
 
   teardown: () ->
-    dom.wrap(@el).empty()
+    dom.wrap(@el).empty().remove()
     @deck.off 'card:deactivate-all', @on_deactivate
 
   on_deactivate: () =>
@@ -80,7 +83,8 @@ class CardViewModule extends ViewModule
   on_choice_click: (evt) =>
     evt.preventDefault()
     card = @options.card
-    target = dom.wrap(evt.target).data('target')
+    $el = dom.wrap(evt.target)
+    target = $el.data('target')
     card.will_get_choices_by_target().then (choices) =>
       choice = choices[target]
       card.will_choose(choice, evt.target).then (result) =>

@@ -76,7 +76,7 @@ class Card
       @will_get_choices().then (choices) =>
         cbt = {}
         for choice in choices
-          cbt[choice.target] = choice
+          cbt[choice.raw] = choice
         @choices_by_target = cbt
         return cbt
 
@@ -120,7 +120,7 @@ class Card
 
     else if raw_directive == '-->'
       data.action = @default_action
-      data.target = @deck.get_card_after(@id).id
+      data.target = @deck.get_card_after(this).id
 
     else
       data.action = @deck.options.default_action
