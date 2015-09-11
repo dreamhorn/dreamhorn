@@ -60,10 +60,14 @@
     Stack.prototype.will_drop = function(item, data) {
       var dropped;
       dropped = _.remove(this._data, _.matchesProperty('id', item.id))[0];
-      this.length = this._data.length - 1;
-      return this.will_trigger('dropped', dropped, data).then(function() {
-        return [dropped, data];
-      });
+      if (!_.isUndefined(dropped)) {
+        this.length = this._data.length - 1;
+        return this.will_trigger('dropped', dropped, data).then(function() {
+          return [dropped, data];
+        });
+      } else {
+        throw new Error("Item not in stack: cannot drop it!");
+      }
     };
 
     return Stack;

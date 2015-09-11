@@ -38,9 +38,11 @@ class Stack extends Events
 
   will_drop: (item, data) ->
     dropped = _.remove(@_data, _.matchesProperty('id', item.id))[0]
-    @length = @_data.length - 1
-    @will_trigger('dropped', dropped, data).then () ->
-      return [dropped, data]
-
+    if not _.isUndefined dropped
+      @length = @_data.length - 1
+      @will_trigger('dropped', dropped, data).then () ->
+        return [dropped, data]
+    else
+      throw new Error("Item not in stack: cannot drop it!")
 
 module.exports = Stack
