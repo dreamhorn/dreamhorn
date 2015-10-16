@@ -11,15 +11,17 @@ watch:
 test: install runtests coverage
 
 runtests:
-	$(BIN)/mocha tests
+	$(BIN)/mocha --growl --reporter dot tests
 
 tests/coverage.html: install
-	$(BIN)/mocha --require blanket -R html-cov tests > tests/coverage.html
+	$(BIN)/mocha --require blanket --reporter html-cov tests > tests/coverage.html
 
 coverage: tests/coverage.html
 
 clean:
 	rm -f $(LIB)
+
+build: $(LIB)
 
 install link: build
 	npm $@
