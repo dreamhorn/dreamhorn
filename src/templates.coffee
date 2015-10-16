@@ -40,5 +40,5 @@ module.exports =
     render = @get_compiled_template(template)
     return render context
 
-  convert_to_markdown: (text) ->
+  convert_markdown_to_html: (text) ->
     return marked text

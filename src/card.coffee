@@ -63,9 +63,9 @@ class Card
             choice = @parse_directive raw_text, directive
           else
             choice = directive
+            choice.raw_text = raw_text
             if not directive.raw
               choice.raw = "#{directive.action}!#{directive.name}"
-          choice.raw_text = raw_text
           choices.push choice
         return choices
 
@@ -77,10 +77,14 @@ class Card
         cbt = {}
         for choice in choices
           cbt[choice.raw] = choice
-        @choices_by_target = cbt
+        @_choices_by_target = cbt
         return cbt
 
   will_choose: (choice, el) ->
+    if _.isString choice
+      choice = @parse_directive el.text, choice
+    if not choice or not choice.action
+      debugger
     if @is_action choice.action
       return When this.actions[choice.action](this, el)
     else
@@ -103,12 +107,12 @@ class Card
       from_card: this
     }
     if raw_directive == '!'
-      if @is_action text
+      if @is_action raw_text
         # !: Trigger an event of the same name as anchor text
-        data.action = text
+        data.action = raw_text
       else
         data.action = @default_action
-        data.target = text
+        data.target = raw_text
 
     else if '!' in raw_directive
       if _.startsWith raw_directive, '!'

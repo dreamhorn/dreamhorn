@@ -20,28 +20,28 @@ describe('Card', function () {
 
   describe('#constructor(id, data)', function () {
     it('should set up with an id and data', function () {
-      card = new Card(id, data);
+      card = new Card({id: id, data: data});
       card.id.should.equal(id);
       card.content.should.equal(data.content);
     });
 
     it('should set up with only data, with an id', function () {
       data.id = id;
-      card = new Card(data);
+      card = new Card({data: data});
       card.id.should.equal(id);
       card.content.should.equal(data.content);
     });
 
     it('should set up with only data, with no id', function () {
       id = md5(JSON.stringify(data));
-      card = new Card(data);
+      card = new Card({data: data});
       card.id.should.equal(id);
       card.content.should.equal(data.content);
     });
 
     it('should set up with an id and a content string', function () {
       content = data.content;
-      card = new Card(id, content);
+      card = new Card({id: id, data: content});
       card.id.should.equal(id);
       card.content.should.equal(data.content);
     });
@@ -49,7 +49,7 @@ describe('Card', function () {
     it('should set up with only a content string, with no id', function () {
       content = data.content;
       id = md5(JSON.stringify(data));
-      card = new Card(content);
+      card = new Card({data: content});
       card.id.should.equal(id);
       card.content.should.equal(data.content);
     });

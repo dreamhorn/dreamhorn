@@ -15,17 +15,19 @@ describe('Events', function () {
     events = new Events();
   });
 
-  describe('#on() and #trigger()', function () {
+  describe('#on() and #will_trigger()', function () {
     it('should set up a listener', function () {
       var spy = sinon.spy();
       events.on('signal', spy);
-      events.trigger('signal', 'foo', 'bar');
-      spy.calledOnce.should.be.ok;
-      spy.calledWith('foo', 'bar').should.be.ok;
-      spy.reset();
-      events.trigger('signal', 'baz', 'boo');
-      spy.calledOnce.should.be.ok;
-      spy.calledWith('baz', 'boo').should.be.ok;
+      return events.will_trigger('signal', 'foo', 'bar').then(function () {
+        spy.calledOnce.should.be.ok;
+        spy.calledWith('foo', 'bar').should.be.ok;
+        spy.reset();
+        return events.will_trigger('signal', 'baz', 'boo').then(function () {
+          spy.calledOnce.should.be.ok;
+          spy.calledWith('baz', 'boo').should.be.ok;
+        });
+      });
     });
   });
 
@@ -33,12 +35,14 @@ describe('Events', function () {
     it('should set up a listener', function () {
       var spy = sinon.spy();
       events.once('signal', spy);
-      events.trigger('signal', 'foo', 'bar');
-      spy.calledOnce.should.be.ok;
-      spy.calledWith('foo', 'bar').should.be.ok;
-      events.trigger('signal', 'baz', 'boo');
-      spy.calledOnce.should.be.ok;
-      spy.calledWith('foo', 'bar').should.be.ok;
+      return events.will_trigger('signal', 'foo', 'bar').then(function () {
+        spy.calledOnce.should.be.ok;
+        spy.calledWith('foo', 'bar').should.be.ok;
+        return events.will_trigger('signal', 'baz', 'boo').then(function () {
+          spy.calledOnce.should.be.ok;
+          spy.calledWith('foo', 'bar').should.be.ok;
+        });
+      });
     });
   });
 });

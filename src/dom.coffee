@@ -3,13 +3,14 @@ _ = require('lodash')
 bonzo = require('bonzo')
 qwery = require('qwery')
 bean = require('bean')
+bonzo.setQueryEngine(qwery)
 
-dom = (selector) ->
-    return bonzo(qwery(selector))
+dom = (selector, context) ->
+    return bonzo(qwery(selector, context))
 
 _.extend dom,
-  query: (selector) ->
-    return qwery(selector)
+  query: (selector, context) ->
+    return qwery(selector, context)
 
   wrap: (el) ->
     return bonzo(el)

@@ -1,7 +1,6 @@
 "use strict"
 _ = require('lodash')
 When = require('when')
-dom = require('./dom')
 
 
 class Effects
@@ -10,10 +9,10 @@ class Effects
     @_effects = {}
 
     @define 'default-in', (el, options) ->
-      dom.wrap(el).show()
+      require('./dom').wrap(el).show()
 
     @define 'default-out', (el, options) ->
-      dom.wrap(el).hide()
+      require('./dom').wrap(el).hide()
 
   define: (name, runner) ->
     @_effects[name] = runner

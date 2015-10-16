@@ -20,6 +20,8 @@ class CardStackViewModule extends ViewModule
     @deck.stack.on 'cleared', this.on_reset
     @deck.stack.on 'cleared', this.on_clear
 
+    @deck.on 'deactivate-all', this.on_deactivate_all
+
   # Stack event handlers
   # --------------------
   #
@@ -45,6 +47,10 @@ class CardStackViewModule extends ViewModule
     for card in cleared
       @drop(card)
 
+  on_deactivate_all: () =>
+    for view in @get_card_views()
+      view.disable_links()
+
   # Methods for doing things
 
   # Visually push a new situation onto the stack.
@@ -65,6 +71,9 @@ class CardStackViewModule extends ViewModule
 
   drop: (card, data) =>
     @will_stop_card_view(card)
+
+  get_card_views: ->
+    return (@get_subview(card.id) for card in @deck.cards_in_order)
 
   will_ensure_card_view: (card, options) ->
     subview = @get_subview card.id

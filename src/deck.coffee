@@ -32,7 +32,7 @@ class Deck extends Events
     @on 'reset', @will_reset
 
     @on 'all', (event, args...) =>
-      console.debug "*#{event}* event on #{@options.name}:", args...
+      console.log "*#{event}* event on #{@options.name}:", args...
 
   card: (id, data) ->
     return @add_card new Card({id: id, deck: this, data: data})
@@ -69,9 +69,10 @@ class Deck extends Events
     @will_trigger 'seen', card
 
   will_get_card_from_data: (data) =>
-    if _.isString data
-      data = {target: data}
-    card = data.target
+    if data instanceof Card or _.isString data
+      card = data
+    else
+      card = if data.target then data.target else data.from_card
     if _.isString card
       card = @will_get_card card
 
@@ -87,11 +88,15 @@ class Deck extends Events
     return @stack.will_pop(data)
 
   will_drop: (data) =>
+    console.log("Dropping with data:", data)
     @will_get_card_from_data(data).then (card) =>
+      console.log "Dropping card:", card.id
       return @stack.will_drop card, data
 
   will_clear: (data) =>
-    @stack.will_clear(data)
+    @stack.will_clear(data).then (result) =>
+      return When(@will_push(data) if data and data.target).then () =>
+        return result
 
   will_reset: (data) =>
     @will_clear(data).then () =>

@@ -95,7 +95,7 @@ Dreamhorn.extend = (extensions) ->
 
 
 Dreamhorn.extend_defaults = (extensions) ->
-  _.extend(Dreamhorn.defaults, _.defaults({}, extensions, Dreamhorn.defaults))
+  _.extend(Dreamhorn.defaults, _.defaultsDeep({}, extensions, Dreamhorn.defaults))
 
 Dreamhorn.defaults =
   deck_type: Deck

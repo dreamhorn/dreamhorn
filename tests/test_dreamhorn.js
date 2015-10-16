@@ -35,16 +35,19 @@ describe('Dreamhorn', function () {
       });
       Dreamhorn.defaults.should.deep.equal({
         deck_type: Deck,
-        foo: 'bar'
+        foo: 'bar',
+        main_deck: 'main'
       });
       Dreamhorn.extend_defaults({
         foo: 'blah',
-        bar: {baz: 'boo'}
+        bar: {baz: 'boo'},
+        main_deck: 'main'
       });
       Dreamhorn.defaults.should.deep.equal({
         deck_type: Deck,
         foo: 'blah',
-        bar: {baz: 'boo'}
+        bar: {baz: 'boo'},
+        main_deck: 'main'
       });
       Dreamhorn.extend_defaults({
         bar: {blah: 'barf'}
@@ -52,7 +55,8 @@ describe('Dreamhorn', function () {
       Dreamhorn.defaults.should.deep.equal({
         deck_type: Deck,
         foo: 'blah',
-        bar: {baz: 'boo', blah: 'barf'}
+        bar: {baz: 'boo', blah: 'barf'},
+        main_deck: 'main'
       });
     });
   });
@@ -70,7 +74,8 @@ describe('Dreamhorn', function () {
     it('should set up options', function () {
       D.options.should.deep.equal({
         foo: 'bar',
-        deck_type: Deck
+        deck_type: Deck,
+        main_deck: 'main'
       });
     });
 
@@ -79,7 +84,8 @@ describe('Dreamhorn', function () {
       D = new Dreamhorn(options);
       D.options.should.deep.equal({
         foo: 'bar',
-        deck_type: options.deck_type
+        deck_type: options.deck_type,
+        main_deck: 'main'
       });
     });
   });

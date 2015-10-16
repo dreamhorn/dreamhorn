@@ -56,12 +56,12 @@ class CardViewModule extends ViewModule
   will_get_header: (card, context) ->
     card.will_get_header().then (raw_header) =>
       header = templates.render_template(raw_header, context)
-      return templates.convert_to_markdown header
+      return templates.convert_markdown_to_html header
 
   will_get_content: (card, context) ->
     card.will_get_content().then (raw_content) =>
       content = templates.render_template(raw_content, context)
-      return templates.convert_to_markdown content
+      return templates.convert_markdown_to_html content
 
   will_get_choices: (card, context) ->
     card.will_get_choices().then (choices) =>
@@ -69,6 +69,27 @@ class CardViewModule extends ViewModule
         if _.isUndefined choice.text
           choice.text = templates.render_template choice.raw_text, context
       return choices
+
+  get_links: ->
+    return dom('a', @el).map (anchor) ->
+      dom.wrap(anchor)
+
+  will_process_el: ->
+    card = @get_card()
+    @get_links().each ($el) =>
+      if not $el.hasClass('raw') and not $el.data('target')
+        href = $el.attr('href')
+        $el.attr('href', '#')
+        $el.attr('data-target', href)
+
+  disable_links: ->
+    @get_links().each($el) =>
+      if not $el.hasClass('sticky')
+        $el.addClass 'disabled'
+
+  enable_links: ->
+    @get_links().each($el) =>
+      $el.removeClass 'disabled'
 
   setup: () ->
     @deck.on 'card:deactivate-all', @on_deactivate
@@ -81,12 +102,26 @@ class CardViewModule extends ViewModule
     ;
 
   on_choice_click: (evt) =>
-    evt.preventDefault()
-    card = @options.card
     $el = dom.wrap(evt.target)
+    if $el.hasClass 'raw'
+      # Raw links don't get processed in any way, and maintain their default
+      # behavior.
+      return
+
+    evt.preventDefault()
+
+    if $el.hasClass 'disabled'
+      # Disabled links are ignored for all purposes.
+      return
+
+    card = @options.card
     target = $el.data('target')
     card.will_get_choices_by_target().then (choices) =>
+      # If this is a formally-defined choice from the `choices` block:
       choice = choices[target]
+      if _.isUndefined choice
+        # Otherwise, we'll use the raw choice directive and parse it later.
+        choice = target
       card.will_choose(choice, evt.target).then (result) =>
         if _.isString result
           dom.wrap(@el).replaceWith templates.convert_to_markdown result

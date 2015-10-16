@@ -74,12 +74,20 @@ class ViewModule
     When(@el).then (el) =>
       @deck.base.effects.run(@options.effect_out, el, @options, this)
 
+  will_make_el: (html) ->
+    @el = dom.make(html)[0]
+    When(@will_process_el()).then () =>
+      return @el
+
+  will_process_el: ->
+    ;
+
   start: () ->
     if @selector and not @el
       @el = dom.query(@selector)[0]
     else if not @selector and not @el
       @el = @will_render().then (html) =>
-        @el = dom.make(html)[0]
+        return @will_make_el html
     return When.join(@el, @setup())
       .then(@connect_events)
 
