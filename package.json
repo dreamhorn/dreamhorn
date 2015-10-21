@@ -4,7 +4,7 @@
   "description": "A rapid development framework for interactive things.",
   "main": "dreamhorn.js",
   "scripts": {
-    "test": "make test",
+    "test": "./node_modules/.bin/mocha --growl --reporter dot tests",
     "prepublish": "make build"
   },
   "repository": {
