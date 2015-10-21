@@ -1,6 +1,12 @@
 dreamhorn
 =========
 
+> Two gates the silent house of Sleep adorn;
+> Of polish'd ivory this, that of transparent horn:
+> True visions thro' transparent horn arise;
+> Thro' polish'd ivory pass deluding lies.
+> —*The Aeneid*, by Virgil (tr. John Dryden)
+
 A rapid development framework for interactive texts.
 
 [![Build Status](https://travis-ci.org/dreamhorn/dreamhorn.svg?branch=master)](https://travis-ci.org/dreamhorn/dreamhorn)
