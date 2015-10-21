@@ -152,7 +152,7 @@
   };
 
   Dreamhorn.extend_defaults = function(extensions) {
-    return _.extend(Dreamhorn.defaults, _.defaults({}, extensions, Dreamhorn.defaults));
+    return _.extend(Dreamhorn.defaults, _.defaultsDeep({}, extensions, Dreamhorn.defaults));
   };
 
   Dreamhorn.defaults = {

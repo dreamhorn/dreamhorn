@@ -12,13 +12,15 @@
 
   bean = require('bean');
 
-  dom = function(selector) {
-    return bonzo(qwery(selector));
+  bonzo.setQueryEngine(qwery);
+
+  dom = function(selector, context) {
+    return bonzo(qwery(selector, context));
   };
 
   _.extend(dom, {
-    query: function(selector) {
-      return qwery(selector);
+    query: function(selector, context) {
+      return qwery(selector, context);
     },
     wrap: function(el) {
       return bonzo(el);

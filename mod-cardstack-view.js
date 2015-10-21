@@ -27,6 +27,7 @@
       this.drop = bind(this.drop, this);
       this.pop = bind(this.pop, this);
       this.push = bind(this.push, this);
+      this.on_deactivate_all = bind(this.on_deactivate_all, this);
       this.on_clear = bind(this.on_clear, this);
       this.on_drop = bind(this.on_drop, this);
       this.on_pop = bind(this.on_pop, this);
@@ -43,7 +44,8 @@
       this.deck.stack.on('dropped', this.on_drop);
       this.deck.stack.on('replace', this.on_replace);
       this.deck.stack.on('cleared', this.on_reset);
-      return this.deck.stack.on('cleared', this.on_clear);
+      this.deck.stack.on('cleared', this.on_clear);
+      return this.deck.on('deactivate-all', this.on_deactivate_all);
     };
 
     CardStackViewModule.prototype.on_push = function(card, data) {
@@ -74,6 +76,17 @@
       return results;
     };
 
+    CardStackViewModule.prototype.on_deactivate_all = function() {
+      var i, len, ref, results, view;
+      ref = this.get_card_views();
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        view = ref[i];
+        results.push(view.disable_links());
+      }
+      return results;
+    };
+
     CardStackViewModule.prototype.push = function(card, data) {
       return this.deck.will_trigger('deactivate-all').then((function(_this) {
         return function() {
@@ -97,6 +110,20 @@
 
     CardStackViewModule.prototype.drop = function(card, data) {
       return this.will_stop_card_view(card);
+    };
+
+    CardStackViewModule.prototype.get_card_views = function() {
+      var card;
+      return (function() {
+        var i, len, ref, results;
+        ref = this.deck.cards_in_order;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          card = ref[i];
+          results.push(this.get_subview(card.id));
+        }
+        return results;
+      }).call(this);
     };
 
     CardStackViewModule.prototype.will_ensure_card_view = function(card, options) {

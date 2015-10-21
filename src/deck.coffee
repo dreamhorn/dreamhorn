@@ -31,8 +31,8 @@ class Deck extends Events
 
     @on 'reset', @will_reset
 
-    @on 'all', (event, args...) =>
-      console.log "*#{event}* event on #{@options.name}:", args...
+    # @on 'all', (event, args...) =>
+    #   console.log "*#{event}* event on #{@options.name}:", args...
 
   card: (id, data) ->
     return @add_card new Card({id: id, deck: this, data: data})
@@ -47,21 +47,17 @@ class Deck extends Events
   get_card_after: (card) ->
     return @cards_in_order[card.index + 1]
 
-  will_get_card: When.lift (card_id) ->
-    if card_id == '-->'
-      card = @get_card_after card_id
-      card_id = card.id
-    else
-      card = @cards_by_id.get card_id.toLowerCase()
+  will_get_card: (card_id) ->
+    card = @cards_by_id.get card_id.toLowerCase()
     if not card
       data = {}
       return @will_trigger('card:missing', data).then () =>
         if _.isEmpty data
           throw new Error("No such card #{card_id}")
         else
-          return new Card(data)
+          return new Card(data: data)
     else
-      return card
+      return When card
 
   mark_seen: (card) ->
     seen = @seen.get card.id
@@ -88,9 +84,7 @@ class Deck extends Events
     return @stack.will_pop(data)
 
   will_drop: (data) =>
-    console.log("Dropping with data:", data)
     @will_get_card_from_data(data).then (card) =>
-      console.log "Dropping card:", card.id
       return @stack.will_drop card, data
 
   will_clear: (data) =>

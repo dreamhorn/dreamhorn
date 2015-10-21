@@ -40,22 +40,6 @@ describe('Deck', function () {
     });
   });
 
-  describe('events', function () {
-    it('should begin on the begin event', function () {
-      D.card('begin', "Begun!");
-      D.stack.length.should.equal(0);
-      D.will_trigger('begin').then(function () {
-        D.stack.length.should.equal(1);
-        D.stack.peek().should.deep.equal({
-          id: 'begin',
-          content: 'Begun!',
-          index: 0,
-          default_action: 'push'
-        });
-      });
-    });
-  });
-
   describe('#card()', function () {
     it('should add a new card by id and data', function () {
       D.card('begin', 'Begun!');
@@ -76,18 +60,9 @@ describe('Deck', function () {
     });
 
     it('should retrieve a card by id', function () {
-      D.will_get_card('begin').then(function (result) {
+      return D.will_get_card('begin').then(function (result) {
         result.should.be.instanceof(Card);
         result.should.equal(begin);
-      });
-    });
-
-    it('should retrieve a card by next after top of stack', function () {
-      D.stack.will_push(begin).then(function () {
-        D.will_get_card('-->').then(function (result) {
-          result.should.be.instanceof(Card);
-          result.should.equal(next);
-        });
       });
     });
 
@@ -95,7 +70,7 @@ describe('Deck', function () {
       D.on('card:missing', function (data) {
         data.content = "Missing no longer!";
       });
-      D.will_get_card('doesntexist').then(function (result) {
+      return D.will_get_card('doesntexist').then(function (result) {
         result.should.be.instanceof(Card);
         result.content.should.equal("Missing no longer!");
       });
@@ -103,7 +78,7 @@ describe('Deck', function () {
 
     it('should throw an error if the card does not exist', function () {
       (function () {
-        D.will_get_card('doesntexist').reject(function (error) {
+        return D.will_get_card('doesntexist').reject(function (error) {
           error.should.equal("No such card doesntexist")
         })
       })
@@ -119,14 +94,14 @@ describe('Deck', function () {
     });
 
     it('should push a card by data onto the stack', function () {
-      D.will_push({target: 'begin'}).then(function () {
+      return D.will_push({target: 'begin'}).then(function () {
         D.stack.length.should.equal(1);
         D.stack.peek().should.equal(begin);
       });
     });
 
     it('should push a card by id onto the stack', function () {
-      D.will_push('begin').then(function () {
+      return D.will_push('begin').then(function () {
         D.stack.length.should.equal(1);
         D.stack.peek().should.equal(begin);
       });
@@ -136,7 +111,7 @@ describe('Deck', function () {
       var spy = sinon.spy();
       D.stack.on('pushed', spy);
       var data = {target: 'begin'};
-      D.will_push({target: 'begin'}).then(function (card) {
+      return D.will_push({target: 'begin'}).then(function (card) {
         spy.calledOnce.should.be.ok;
         spy.calledWith(card, data).should.be.ok;
       });
@@ -152,8 +127,8 @@ describe('Deck', function () {
     });
 
     it('should pop a card off the stack', function () {
-      D.will_push('begin').then(function () {
-        D.pop().then(function () {
+      return D.will_push('begin').then(function () {
+        return D.will_pop().then(function () {
           D.stack.length.should.equal(0);
         });
       });
@@ -162,9 +137,9 @@ describe('Deck', function () {
     it('should send the data with the pop', function () {
       var spy = sinon.spy();
       D.stack.on('popped', spy);
-      D.will_push('begin').then(function () {
+      return D.will_push('begin').then(function () {
         var data = {foo: 'bar'};
-        D.will_pop(data).then(function () {
+        return D.will_pop(data).then(function () {
           spy.calledOnce.should.be.ok;
           spy.calledWith(begin, data).should.be.ok;
         });
@@ -181,8 +156,8 @@ describe('Deck', function () {
     });
 
     it('should replace a card onto the stack', function () {
-      D.will_push('begin').then(function () {
-        D.will_replace({target: 'next'}).then(function () {
+      return D.will_push('begin').then(function () {
+        return D.will_replace({target: 'next'}).then(function () {
           D.stack.length.should.equal(1);
           D.stack.peek().should.equal(next);
         });
@@ -190,13 +165,13 @@ describe('Deck', function () {
     });
 
     it('should send the data with the replace', function () {
-      D.will_push('begin').then(function () {
+      return D.will_push('begin').then(function () {
         var push_spy = sinon.spy();
         var pop_spy = sinon.spy();
         D.stack.on('pushed', push_spy);
         D.stack.on('popped', pop_spy);
         var data = {target: 'next'};
-        D.will_replace(data).then(function () {
+        return D.will_replace(data).then(function () {
           pop_spy.calledOnce.should.be.ok;
           pop_spy.calledWith(begin, data).should.be.ok;
           push_spy.calledOnce.should.be.ok;
@@ -219,7 +194,7 @@ describe('Deck', function () {
         D.will_push('begin'),
         D.will_push('next')
       ).then(function () {
-        D.will_drop({from_card: begin}).then(function () {
+        return D.will_drop({from_card: begin}).then(function () {
           D.stack.length.should.equal(1);
           D.stack.peek().should.equal(next);
         })

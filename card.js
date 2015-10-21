@@ -94,11 +94,11 @@
                 choice = _this.parse_directive(raw_text, directive);
               } else {
                 choice = directive;
+                choice.raw_text = raw_text;
                 if (!directive.raw) {
                   choice.raw = directive.action + "!" + directive.name;
                 }
               }
-              choice.raw_text = raw_text;
               choices.push(choice);
             }
             return choices;
@@ -119,7 +119,7 @@
               choice = choices[i];
               cbt[choice.raw] = choice;
             }
-            _this.choices_by_target = cbt;
+            _this._choices_by_target = cbt;
             return cbt;
           };
         })(this));
@@ -127,6 +127,12 @@
     };
 
     Card.prototype.will_choose = function(choice, el) {
+      if (_.isString(choice)) {
+        choice = this.parse_directive(el.text, choice);
+      }
+      if (!choice || !choice.action) {
+        debugger;
+      }
       if (this.is_action(choice.action)) {
         return When(this.actions[choice.action](this, el));
       } else {
@@ -153,11 +159,11 @@
         from_card: this
       };
       if (raw_directive === '!') {
-        if (this.is_action(text)) {
-          data.action = text;
+        if (this.is_action(raw_text)) {
+          data.action = raw_text;
         } else {
           data.action = this.default_action;
-          data.target = text;
+          data.target = raw_text;
         }
       } else if (indexOf.call(raw_directive, '!') >= 0) {
         if (_.startsWith(raw_directive, '!')) {

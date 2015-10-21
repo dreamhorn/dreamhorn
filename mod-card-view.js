@@ -66,7 +66,7 @@
         return function(raw_header) {
           var header;
           header = templates.render_template(raw_header, context);
-          return templates.convert_to_markdown(header);
+          return templates.convert_markdown_to_html(header);
         };
       })(this));
     };
@@ -76,7 +76,7 @@
         return function(raw_content) {
           var content;
           content = templates.render_template(raw_content, context);
-          return templates.convert_to_markdown(content);
+          return templates.convert_markdown_to_html(content);
         };
       })(this));
     };
@@ -96,6 +96,45 @@
       })(this));
     };
 
+    CardViewModule.prototype.get_links = function() {
+      return dom('a', this.el).map(function(anchor) {
+        return dom.wrap(anchor);
+      });
+    };
+
+    CardViewModule.prototype.will_process_el = function() {
+      var card;
+      card = this.get_card();
+      return this.get_links().each((function(_this) {
+        return function($el) {
+          var href;
+          if (!$el.hasClass('raw') && !$el.data('target')) {
+            href = $el.attr('href');
+            $el.attr('href', '#');
+            return $el.attr('data-target', href);
+          }
+        };
+      })(this));
+    };
+
+    CardViewModule.prototype.disable_links = function() {
+      return this.get_links().each($el)((function(_this) {
+        return function() {
+          if (!$el.hasClass('sticky')) {
+            return $el.addClass('disabled');
+          }
+        };
+      })(this));
+    };
+
+    CardViewModule.prototype.enable_links = function() {
+      return this.get_links().each($el)((function(_this) {
+        return function() {
+          return $el.removeClass('disabled');
+        };
+      })(this));
+    };
+
     CardViewModule.prototype.setup = function() {
       return this.deck.on('card:deactivate-all', this.on_deactivate);
     };
@@ -109,14 +148,23 @@
 
     CardViewModule.prototype.on_choice_click = function(evt) {
       var $el, card, target;
-      evt.preventDefault();
-      card = this.options.card;
       $el = dom.wrap(evt.target);
+      if ($el.hasClass('raw')) {
+        return;
+      }
+      evt.preventDefault();
+      if ($el.hasClass('disabled')) {
+        return;
+      }
+      card = this.options.card;
       target = $el.data('target');
       return card.will_get_choices_by_target().then((function(_this) {
         return function(choices) {
           var choice;
           choice = choices[target];
+          if (_.isUndefined(choice)) {
+            choice = target;
+          }
           return card.will_choose(choice, evt.target).then(function(result) {
             if (_.isString(result)) {
               return dom.wrap(_this.el).replaceWith(templates.convert_to_markdown(result));

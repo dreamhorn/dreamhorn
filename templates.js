@@ -46,7 +46,7 @@
       render = this.get_compiled_template(template);
       return render(context);
     },
-    convert_to_markdown: function(text) {
+    convert_markdown_to_html: function(text) {
       return marked(text);
     }
   };

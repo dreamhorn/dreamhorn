@@ -21,7 +21,7 @@ coverage: tests/coverage.html
 clean:
 	rm -f $(LIB)
 
-build: $(LIB)
+build: default
 
 install link: build
 	npm $@

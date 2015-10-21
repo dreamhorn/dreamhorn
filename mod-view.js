@@ -114,13 +114,24 @@
       })(this));
     };
 
+    ViewModule.prototype.will_make_el = function(html) {
+      this.el = dom.make(html)[0];
+      return When(this.will_process_el()).then((function(_this) {
+        return function() {
+          return _this.el;
+        };
+      })(this));
+    };
+
+    ViewModule.prototype.will_process_el = function() {};
+
     ViewModule.prototype.start = function() {
       if (this.selector && !this.el) {
         this.el = dom.query(this.selector)[0];
       } else if (!this.selector && !this.el) {
         this.el = this.will_render().then((function(_this) {
           return function(html) {
-            return _this.el = dom.make(html)[0];
+            return _this.will_make_el(html);
           };
         })(this));
       }

@@ -44,13 +44,6 @@
       this.on('drop', this.will_drop);
       this.on('clear', this.will_clear);
       this.on('reset', this.will_reset);
-      this.on('all', (function(_this) {
-        return function() {
-          var args, event;
-          event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-          return console.debug.apply(console, ["*" + event + "* event on " + _this.options.name + ":"].concat(slice.call(args)));
-        };
-      })(this));
     }
 
     Deck.prototype.card = function(id, data) {
@@ -73,14 +66,9 @@
       return this.cards_in_order[card.index + 1];
     };
 
-    Deck.prototype.will_get_card = When.lift(function(card_id) {
+    Deck.prototype.will_get_card = function(card_id) {
       var card, data;
-      if (card_id === '-->') {
-        card = this.get_card_after(card_id);
-        card_id = card.id;
-      } else {
-        card = this.cards_by_id.get(card_id.toLowerCase());
-      }
+      card = this.cards_by_id.get(card_id.toLowerCase());
       if (!card) {
         data = {};
         return this.will_trigger('card:missing', data).then((function(_this) {
@@ -88,14 +76,16 @@
             if (_.isEmpty(data)) {
               throw new Error("No such card " + card_id);
             } else {
-              return new Card(data);
+              return new Card({
+                data: data
+              });
             }
           };
         })(this));
       } else {
-        return card;
+        return When(card);
       }
-    });
+    };
 
     Deck.prototype.mark_seen = function(card) {
       var seen;
@@ -106,12 +96,11 @@
 
     Deck.prototype.will_get_card_from_data = function(data) {
       var card;
-      if (_.isString(data)) {
-        data = {
-          target: data
-        };
+      if (data instanceof Card || _.isString(data)) {
+        card = data;
+      } else {
+        card = data.target ? data.target : data.from_card;
       }
-      card = data.target;
       if (_.isString(card)) {
         card = this.will_get_card(card);
       }
@@ -142,7 +131,13 @@
     };
 
     Deck.prototype.will_clear = function(data) {
-      return this.stack.will_clear(data);
+      return this.stack.will_clear(data).then((function(_this) {
+        return function(result) {
+          return When(data && data.target ? _this.will_push(data) : void 0).then(function() {
+            return result;
+          });
+        };
+      })(this));
     };
 
     Deck.prototype.will_reset = function(data) {
