@@ -1,5 +1,5 @@
 "use strict"
-_ = require('lodash')
+_ = require('./util')
 Dict = require('collections/dict')
 Stack = require('./stack')
 Card = require('./card')

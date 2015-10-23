@@ -7,7 +7,7 @@
     hasProp = {}.hasOwnProperty,
     slice = [].slice;
 
-  _ = require('lodash');
+  _ = require('./util');
 
   Dict = require('collections/dict');
 

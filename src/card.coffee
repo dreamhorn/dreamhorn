@@ -1,5 +1,5 @@
 "use strict"
-_ = require('lodash')
+_ = require('./util')
 md5 = require('md5')
 When = require('when')
 templates = require('./templates')

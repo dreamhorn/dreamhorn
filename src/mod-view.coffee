@@ -1,6 +1,6 @@
 "use strict"
 
-_ = require('lodash')
+_ = require('./util')
 marked = require('marked')
 dom = require('./dom')
 templates = require('./templates')

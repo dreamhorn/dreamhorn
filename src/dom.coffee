@@ -1,5 +1,5 @@
 "use strict"
-_ = require('lodash')
+_ = require('./util')
 bonzo = require('bonzo')
 qwery = require('qwery')
 bean = require('bean')

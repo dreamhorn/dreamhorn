@@ -4,7 +4,7 @@
   var Events, When, _, eventSplitter, eventsApi, listenMethods, slice, triggerEvents,
     slice1 = [].slice;
 
-  _ = require('lodash');
+  _ = require('./util');
 
   When = require('when');
 

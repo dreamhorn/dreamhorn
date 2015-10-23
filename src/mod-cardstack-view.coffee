@@ -1,6 +1,6 @@
 "use strict"
 
-_ = require('lodash')
+_ = require('./util')
 dom = require('./dom')
 assert = require('./assert')
 Dreamhorn = require('./dreamhorn')

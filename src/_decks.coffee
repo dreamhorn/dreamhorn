@@ -1,5 +1,5 @@
 "use strict"
-_ = require('lodash')
+_ = require('./util')
 When = require('when')
 
 

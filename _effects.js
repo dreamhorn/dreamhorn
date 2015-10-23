@@ -3,7 +3,7 @@
   "use strict";
   var Effects, When, _;
 
-  _ = require('lodash');
+  _ = require('./util');
 
   When = require('when');
 

@@ -3,7 +3,7 @@
   "use strict";
   var Dreamhorn, ViewModule, When, _, dom, marked, templates;
 
-  _ = require('lodash');
+  _ = require('./util');
 
   marked = require('marked');
 

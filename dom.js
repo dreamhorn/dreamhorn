@@ -4,7 +4,7 @@
   var _, bean, bonzo, dom, qwery,
     slice = [].slice;
 
-  _ = require('lodash');
+  _ = require('./util');
 
   bonzo = require('bonzo');
 

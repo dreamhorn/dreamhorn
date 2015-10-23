@@ -1,7 +1,7 @@
 "use strict"
 
 Handlebars = require('handlebars')
-_ = require('lodash')
+_ = require('./util')
 marked = require('marked')
 Dict = require('collections/dict')
 

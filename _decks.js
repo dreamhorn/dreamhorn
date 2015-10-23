@@ -4,7 +4,7 @@
   var Decks, When, _,
     slice = [].slice;
 
-  _ = require('lodash');
+  _ = require('./util');
 
   When = require('when');
 

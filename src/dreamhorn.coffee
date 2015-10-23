@@ -1,6 +1,6 @@
 "use strict"
 
-_ = require('lodash')
+_ = require('./util')
 Dict = require('collections/dict')
 When = require('when')
 
